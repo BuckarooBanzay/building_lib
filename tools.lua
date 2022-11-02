@@ -101,3 +101,34 @@ minetest.register_tool("building_lib:remove", {
     on_use = function()
     end
 })
+
+-- check for tools
+local function pointed_check()
+    for _, player in ipairs(minetest.get_connected_players()) do
+        local itemstack = player:get_wielded_item()
+        local playername = player:get_player_name()
+        local name = itemstack and itemstack:get_name()
+        if name == "building_lib:place" then
+            local pointed_mapblock_pos = mapblock_lib.get_pointed_position(player, 2)
+            local meta = itemstack:get_meta()
+            local buildingname = meta:get_string("buildingname")
+            local building_def = building_lib.buildings[buildingname]
+            if not building_def then
+                building_lib.clear_preview(playername)
+                return
+            end
+            local size = building_lib.get_building_size(building_def)
+            local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
+            building_lib.show_preview(playername, pointed_mapblock_pos, mapblock_pos2)
+
+        elseif building_lib.has_preview(playername) then
+            building_lib.clear_preview(playername)
+        end
+    end
+    minetest.after(0, pointed_check)
+end
+
+minetest.after(0, pointed_check)
+minetest.register_on_leaveplayer(function(player)
+    building_lib.clear_preview(player:get_player_name())
+end)
