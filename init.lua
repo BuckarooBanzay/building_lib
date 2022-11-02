@@ -19,11 +19,15 @@ dofile(MP .. "/register.lua")
 dofile(MP .. "/get_groups.lua")
 dofile(MP .. "/get_building.lua")
 dofile(MP .. "/inventory.lua")
-dofile(MP .. "/placements/simple.lua")
+dofile(MP .. "/placements/default.lua")
 dofile(MP .. "/can_build.lua")
 dofile(MP .. "/do_build.lua")
 dofile(MP .. "/chat.lua")
 
 if minetest.get_modpath("mtt") and mtt.enabled then
-	dofile(MP .. "/mtt.lua")
+	dofile(MP .. "/can_build.spec.lua")
+end
+
+if minetest.settings:get_bool("building_lib.enable_example_buildings") then
+	dofile(MP .. "/example_buildings.lua")
 end

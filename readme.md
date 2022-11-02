@@ -18,7 +18,7 @@ local groups = building_lib.get_groups(mapblock_pos)
 
 -- registers a placeable building
 building_lib.register_building("buildings:my_building", {
-	placement = "simple",
+	placement = "default",
 	conditions = {
 		-- OR
 		on_flat_surface = true,

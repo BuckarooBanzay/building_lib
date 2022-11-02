@@ -1,7 +1,7 @@
 
 function building_lib.register_building(name, def)
 	def.name = name
-	assert(type(def.placement) == "string", "placement is not a string on " .. def.name)
+	def.placement = def.placement or "default"
 
 	-- try to validate the building/placement combo
 	local placement = building_lib.placements[def.placement]

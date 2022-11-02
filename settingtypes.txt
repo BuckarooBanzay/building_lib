@@ -1,0 +1,2 @@
+# Example buildings for testing
+building_lib.enable_example_buildings (Enables the example buildings) bool false
