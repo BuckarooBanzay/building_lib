@@ -69,3 +69,8 @@ building_lib.register_condition("on_flat_surface", {
 * `/building_place <building_name>`
 * `/building_check <building_name>`
 * `/building_info`
+
+# License
+
+* Code: `MIT`
+* Textures: `CC-BY-SA-3.0`

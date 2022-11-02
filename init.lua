@@ -31,3 +31,7 @@ end
 if minetest.settings:get_bool("building_lib.enable_example_buildings") then
 	dofile(MP .. "/example_buildings.lua")
 end
+
+if minetest.settings:get_bool("building_lib.enable_tools") then
+	dofile(MP .. "/tools.lua")
+end
