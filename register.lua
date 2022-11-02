@@ -21,6 +21,10 @@ function building_lib.register_placement(name, def)
 	building_lib.placements[name] = def
 end
 
+function building_lib.get_placement(name)
+	return building_lib.placements[name]
+end
+
 function building_lib.register_condition(name, def)
 	def.name = name
 	building_lib.conditions[name] = def

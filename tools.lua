@@ -88,6 +88,8 @@ minetest.register_tool("building_lib:place", {
             return
         end
         print(dump(building_def))
+        local size = building_lib.get_building_size(building_def)
+        print(dump(size))
     end
 })
 

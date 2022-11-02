@@ -27,6 +27,11 @@ function building_lib.get_building_at_pos(mapblock_pos)
 	end
 end
 
+function building_lib.get_building_size(building_def)
+	local placement = building_lib.get_placement(building_def.placement)
+	return placement.get_size(placement, nil, building_def)
+end
+
 function building_lib.get_building_size_at(mapblock_pos)
 	local building, origin = building_lib.get_building_at_pos(mapblock_pos)
 	if building then
