@@ -24,7 +24,7 @@ building_lib.register_building("buildings:my_building", {
 		{ on_slope = true, on_biome = "grass" },
 		{ on_flat_surface = true, on_biome = "water" },
 	},
-	schematic = "",
+	catalog = "",
 	-- optional groups attribute
 	groups = {
 		building = true
@@ -63,8 +63,6 @@ building_lib.register_condition("on_flat_surface", {
 
 ## Chat commands
 
-* `/building_place <building_name>`
-* `/building_check <building_name>`
 * `/building_info`
 
 # License
