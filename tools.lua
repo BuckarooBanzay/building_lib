@@ -68,6 +68,10 @@ minetest.register_on_player_receive_fields(function(player, f, fields)
     end
 end)
 
+local function get_pointed_mapblock(player)
+    return mapblock_lib.get_pointed_position(player, 2)
+end
+
 minetest.register_tool("building_lib:place", {
     description = "building_lib placer",
     inventory_image = "building_lib_place.png",
@@ -79,17 +83,29 @@ minetest.register_tool("building_lib:place", {
     on_use = function(itemstack, player)
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
+        local pointed_mapblock_pos = get_pointed_mapblock(player)
+        local success, err = building_lib.do_build(pointed_mapblock_pos, buildingname)
+        if not success then
+            minetest.chat_send_player(player:get_player_name(), err)
+        end
+    end,
+    on_step = function(itemstack, player)
+        local playername = player:get_player_name()
+        local pointed_mapblock_pos = get_pointed_mapblock(player)
+        local meta = itemstack:get_meta()
+        local buildingname = meta:get_string("buildingname")
         local building_def = building_lib.get_building(buildingname)
         if not building_def then
-            minetest.chat_send_player(
-                player:get_player_name(),
-                "Placer unconfigured or selected building not found"
-            )
+            building_lib.clear_preview(playername)
             return
         end
-        print(dump(building_def))
         local size = building_lib.get_building_size(building_def)
-        print(dump(size))
+        local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
+        building_lib.show_preview(playername, pointed_mapblock_pos, mapblock_pos2)
+    end,
+    on_blur = function(player)
+        local playername = player:get_player_name()
+        building_lib.clear_preview(playername)
     end
 })
 
@@ -98,37 +114,46 @@ minetest.register_tool("building_lib:remove", {
     inventory_image = "building_lib_remove.png",
     stack_max = 1,
     range = 0,
-    on_use = function()
+    on_use = function(_, player)
+        local mapblock_pos = get_pointed_mapblock(player)
+        local success, err = building_lib.do_remove(mapblock_pos)
+        if not success then
+            minetest.chat_send_player(player:get_player_name(), err)
+        end
     end
 })
 
+
+-- playername -> name
+local last_wielded_item = {}
+
 -- check for tools
-local function pointed_check()
+local function wield_check()
     for _, player in ipairs(minetest.get_connected_players()) do
         local itemstack = player:get_wielded_item()
         local playername = player:get_player_name()
         local name = itemstack and itemstack:get_name()
-        if name == "building_lib:place" then
-            local pointed_mapblock_pos = mapblock_lib.get_pointed_position(player, 2)
-            local meta = itemstack:get_meta()
-            local buildingname = meta:get_string("buildingname")
-            local building_def = building_lib.get_building(buildingname)
-            if not building_def then
-                building_lib.clear_preview(playername)
-                return
-            end
-            local size = building_lib.get_building_size(building_def)
-            local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
-            building_lib.show_preview(playername, pointed_mapblock_pos, mapblock_pos2)
+        -- TODO: check player:get_wield_index() to differenciate same-named items
 
-        elseif building_lib.has_preview(playername) then
-            building_lib.clear_preview(playername)
+        if last_wielded_item[playername] and name ~= last_wielded_item[playername] then
+            -- last item got out of focus
+            local item_def = minetest.registered_items[last_wielded_item[playername]]
+            if item_def and type(item_def.on_blur) == "function" then
+                item_def.on_blur(player)
+            end
         end
+
+        local item_def = minetest.registered_items[name]
+        if item_def and type(item_def.on_step) == "function" then
+            item_def.on_step(itemstack, player)
+        end
+
+        last_wielded_item[playername] = name
     end
-    minetest.after(0, pointed_check)
+    minetest.after(0, wield_check)
 end
 
-minetest.after(0, pointed_check)
+minetest.after(0, wield_check)
 minetest.register_on_leaveplayer(function(player)
-    building_lib.clear_preview(player:get_player_name())
+    last_wielded_item[player:get_player_name()] = nil
 end)

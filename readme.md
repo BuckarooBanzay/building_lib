@@ -13,9 +13,6 @@ local success, message = building_lib.do_build(mapblock_pos, building_def, place
 -- get the building at the position or nil
 local building_def = building_lib.get_building_at_pos(mapblock_pos)
 
--- get all groups of the building on the mapblock position (returns {} if no building found)
-local groups = building_lib.get_groups(mapblock_pos)
-
 -- registers a placeable building
 building_lib.register_building("buildings:my_building", {
 	placement = "default",

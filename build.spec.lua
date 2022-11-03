@@ -74,3 +74,10 @@ mtt.register("array mix 3", function(callback)
     callback()
 end)
 
+mtt.register("build", function(callback)
+    local mapblock_pos = {x=0, y=0, z=0}
+    local building_name = "building_lib:block1"
+    local success, err = building_lib.do_build(mapblock_pos, building_name, {}, function() callback() end)
+    assert(not err)
+    assert(success)
+end)
