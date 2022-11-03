@@ -74,7 +74,7 @@ end
 
 minetest.register_tool("building_lib:place", {
     description = "building_lib placer",
-    inventory_image = "building_lib_place.png",
+    inventory_image = "building_lib_place.png^[colorize:#00ff00",
     stack_max = 1,
     range = 0,
     on_secondary_use = function(itemstack, player)
@@ -122,7 +122,7 @@ minetest.register_tool("building_lib:place", {
 
 minetest.register_tool("building_lib:remove", {
     description = "building_lib remover",
-    inventory_image = "building_lib_remove.png",
+    inventory_image = "building_lib_remove.png^[colorize:#ff0000",
     stack_max = 1,
     range = 0,
     on_use = function(_, player)
