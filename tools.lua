@@ -92,6 +92,7 @@ minetest.register_tool("building_lib:place", {
     on_step = function(itemstack, player)
         local playername = player:get_player_name()
         local pointed_mapblock_pos = get_pointed_mapblock(player)
+
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
         local building_def = building_lib.get_building(buildingname)
@@ -101,7 +102,7 @@ minetest.register_tool("building_lib:place", {
         end
         local size = building_lib.get_building_size(building_def)
         local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
-        building_lib.show_preview(playername, pointed_mapblock_pos, mapblock_pos2)
+        building_lib.show_preview("building_lib_place.png", playername, pointed_mapblock_pos, mapblock_pos2)
     end,
     on_blur = function(player)
         local playername = player:get_player_name()
@@ -120,6 +121,25 @@ minetest.register_tool("building_lib:remove", {
         if not success then
             minetest.chat_send_player(player:get_player_name(), err)
         end
+    end,
+    on_step = function(_, player)
+        local playername = player:get_player_name()
+        local pointed_mapblock_pos = get_pointed_mapblock(player)
+
+        local building_def, origin = building_lib.get_building_at_pos(pointed_mapblock_pos)
+        if not building_def then
+            building_lib.clear_preview(playername)
+            return
+        end
+
+        local size = building_lib.get_building_size(building_def)
+        local mapblock_pos2 = vector.add(origin, vector.subtract(size, 1))
+
+        building_lib.show_preview("building_lib_remove.png", playername, origin, mapblock_pos2)
+    end,
+    on_blur = function(player)
+        local playername = player:get_player_name()
+        building_lib.clear_preview(playername)
     end
 })
 

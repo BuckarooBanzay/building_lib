@@ -11,7 +11,7 @@ local success, message = building_lib.can_build(mapblock_pos, building_def)
 local success, message = building_lib.do_build(mapblock_pos, building_def, placement_options, callback)
 
 -- get the building at the position or nil
-local building_def = building_lib.get_building_at_pos(mapblock_pos)
+local building_def, origin = building_lib.get_building_at_pos(mapblock_pos)
 
 -- registers a placeable building
 building_lib.register_building("buildings:my_building", {
