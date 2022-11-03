@@ -1,8 +1,4 @@
 
-function building_lib.get_building(name)
-	return building_lib.buildings[name]
-end
-
 function building_lib.get_origin(mapblock_pos)
 	local mapblock_data = building_lib.store:get(mapblock_pos)
 	local origin = mapblock_pos
@@ -35,7 +31,7 @@ end
 function building_lib.get_building_size_at(mapblock_pos)
 	local building, origin = building_lib.get_building_at_pos(mapblock_pos)
 	if building then
-		local placement = building_lib.placements[building.placement]
+		local placement = building_lib.get_placement(building.placement)
 
 		local size = placement.get_size(placement, mapblock_pos, building)
 		return size, origin

@@ -11,7 +11,7 @@ function building_lib.do_build(mapblock_pos, building_name, placement_options, c
 	end
 
 	-- place into world
-	local placement = building_lib.placements[building_def.placement]
+	local placement = building_lib.get_placement(building_def.placement)
 	local size = placement.get_size(placement, mapblock_pos, building_def)
 
 	-- write new data

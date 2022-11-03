@@ -2,7 +2,7 @@ local formname = "building_lib_placer_configure"
 
 local function get_building_list()
     local building_list = {}
-    for name in pairs(building_lib.buildings) do
+    for name in pairs(building_lib.get_buildings()) do
         table.insert(building_list, name)
     end
     return building_list
@@ -79,7 +79,7 @@ minetest.register_tool("building_lib:place", {
     on_use = function(itemstack, player)
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
-        local building_def = building_lib.buildings[buildingname]
+        local building_def = building_lib.get_building(buildingname)
         if not building_def then
             minetest.chat_send_player(
                 player:get_player_name(),
@@ -112,7 +112,7 @@ local function pointed_check()
             local pointed_mapblock_pos = mapblock_lib.get_pointed_position(player, 2)
             local meta = itemstack:get_meta()
             local buildingname = meta:get_string("buildingname")
-            local building_def = building_lib.buildings[buildingname]
+            local building_def = building_lib.get_building(buildingname)
             if not building_def then
                 building_lib.clear_preview(playername)
                 return

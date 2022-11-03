@@ -1,10 +1,13 @@
 
+-- name -> building_def
+local buildings = {}
+
 function building_lib.register_building(name, def)
 	def.name = name
 	def.placement = def.placement or "default"
 
 	-- try to validate the building/placement combo
-	local placement = building_lib.placements[def.placement]
+	local placement = building_lib.get_placement(def.placement)
 	assert(placement, "placement not found: " .. def.placement)
 	if type(placement.validate) == "function" then
 		local success, err_msg = placement.validate(placement, def)
@@ -13,19 +16,37 @@ function building_lib.register_building(name, def)
 		end
 	end
 
-	building_lib.buildings[name] = def
+	buildings[name] = def
 end
+
+function building_lib.get_building(name)
+    return buildings[name]
+end
+
+function building_lib.get_buildings()
+    return buildings
+end
+
+-- name -> placement_def
+local placements = {}
 
 function building_lib.register_placement(name, def)
 	def.name = name
-	building_lib.placements[name] = def
+	placements[name] = def
 end
 
 function building_lib.get_placement(name)
-	return building_lib.placements[name]
+    return placements[name]
 end
+
+-- name -> condition_def
+local conditions = {}
 
 function building_lib.register_condition(name, def)
 	def.name = name
-	building_lib.conditions[name] = def
+	conditions[name] = def
+end
+
+function building_lib.get_condition(name)
+    return conditions[name]
 end

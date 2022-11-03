@@ -1,6 +1,6 @@
 
 local function check_condition(key, value, mapblock_pos, building_def)
-	local condition = building_lib.conditions[key]
+	local condition = building_lib.get_condition(key)
 	if condition and type(condition.can_build) == "function" then
 		return condition.can_build(mapblock_pos, building_def, value)
 	end
@@ -71,7 +71,7 @@ end
 
 function building_lib.can_build(mapblock_pos, building_def)
 	-- check placement definition
-	local placement = building_lib.placements[building_def.placement]
+	local placement = building_lib.get_placement(building_def.placement)
 
 	local success, message = placement.check(placement, mapblock_pos, building_def)
 	if not success then
