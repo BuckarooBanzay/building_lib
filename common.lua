@@ -15,3 +15,20 @@ function building_lib.get_building_size(building_def)
 	local placement = building_lib.get_placement(building_def.placement)
 	return placement.get_size(placement, nil, building_def)
 end
+
+function building_lib.get_build_rotation(player)
+	local yaw = player:get_look_horizontal()
+	local degrees = yaw / math.pi * 180
+	local rotation = 0
+	if degrees > 45 and degrees < (90+45) then
+		-- x-
+		rotation = 180
+	elseif degrees > (90+45) and degrees < (180+45) then
+		-- z-
+		rotation = 90
+	elseif degrees < 45 or degrees > (360-45) then
+		-- z+
+		rotation = 270
+	end
+	return rotation
+end
