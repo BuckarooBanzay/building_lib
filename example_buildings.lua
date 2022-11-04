@@ -7,3 +7,7 @@ building_lib.register_building("building_lib:street_straight", {
 building_lib.register_building("building_lib:block1", {
 	catalog = MP .. "/schematics/block.zip"
 })
+
+building_lib.register_building("building_lib:block2", {
+	catalog = MP .. "/schematics/block2.zip"
+})

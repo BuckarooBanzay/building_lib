@@ -5,13 +5,10 @@
 
 ```lua
 -- check if something can be built there
-local success, message = building_lib.can_build(mapblock_pos, building_def)
+local success, message = building_lib.can_build(mapblock_pos, building_name, rotation)
 
 -- build it there
-local success, message = building_lib.do_build(mapblock_pos, building_def, placement_options, callback)
-
--- get the building at the position or nil
-local building_def, origin = building_lib.get_building_at_pos(mapblock_pos)
+local success, message = building_lib.do_build(mapblock_pos, building_name, rotation, callback)
 
 -- registers a placeable building
 building_lib.register_building("buildings:my_building", {
@@ -33,18 +30,10 @@ building_lib.register_building("buildings:my_building", {
 
 -- registers a placement type (connected, simple, etc)
 building_lib.register_placement("simple", {
-	check = function(self, mapblock_pos, building_def)
-		-- placement-related checks
-		if ok then
-			return true
-		else
-			return false, "not gonna happen here!"
-		end
-	end,
 	-- place the building
-	place = function(mself, apblock_pos, building_def, callback) end,
+	place = function(self, mapblock_pos, building_def, rotation, callback) end,
 	-- return the size of the building if it would be placed there
-	get_size = function(self, mapblock_pos, building_def)
+	get_size = function(self, mapblock_pos, building_def, rotation)
 		return { x=1, y=1, z=1 }
 	end,
 	-- validation function for startup-checks (optional)

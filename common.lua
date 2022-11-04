@@ -4,16 +4,16 @@ function building_lib.get_origin(mapblock_pos)
 	return origin
 end
 
-function building_lib.get_building_at_pos(mapblock_pos)
+function building_lib.get_placed_building_info(mapblock_pos)
 	local mapblock_data, origin = mapblock_lib.resolve_data_link(building_lib.store, mapblock_pos)
 	if mapblock_data and mapblock_data.building then
-		return building_lib.get_building(mapblock_data.building.name), origin
+		return mapblock_data.building, origin
 	end
 end
 
-function building_lib.get_building_size(building_def)
+function building_lib.get_building_size(building_def, rotation)
 	local placement = building_lib.get_placement(building_def.placement)
-	return placement.get_size(placement, nil, building_def)
+	return placement.get_size(placement, nil, building_def, rotation)
 end
 
 function building_lib.get_build_rotation(player)

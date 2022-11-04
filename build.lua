@@ -62,25 +62,24 @@ function building_lib.check_conditions(mapblock_pos, conditions, building_def)
 end
 
 local function check_free(mapblock_pos)
-	if building_lib.get_building_at_pos(mapblock_pos) then
+	if building_lib.get_placed_building_info(mapblock_pos) then
 		return false
 	else
 		return true
 	end
 end
 
-function building_lib.can_build(mapblock_pos, building_def)
+function building_lib.can_build(mapblock_pos, building_name, rotation)
+	local building_def = building_lib.get_building(building_name)
+	if not building_def then
+		return false, "Building not found: '" .. building_name .. "'"
+	end
+
 	-- check placement definition
 	local placement = building_lib.get_placement(building_def.placement)
 
-	local success, message = placement.check(placement, mapblock_pos, building_def)
-	if not success then
-		return false, message or "placement check '" .. building_def.placement .. "' failed"
-	end
-
 	-- check the conditions on every mapblock the building would occupy
-	local size
-	size, message = placement.get_size(placement, mapblock_pos, building_def)
+	local size, message = placement.get_size(placement, mapblock_pos, building_def, rotation)
 	if not size then
 		return false, message or "size check '" .. building_def.placement .. "' failed"
 	end
@@ -94,6 +93,7 @@ function building_lib.can_build(mapblock_pos, building_def)
 					return false, "Space already occupied at " .. minetest.pos_to_string(offset_mapblock_pos)
 				end
 
+				local success
 				if y == mapblock_pos.y then
 					-- check ground conditions
 					success, message = building_lib.check_conditions(offset_mapblock_pos, building_def.ground_conditions, building_def)
@@ -114,19 +114,17 @@ function building_lib.can_build(mapblock_pos, building_def)
 	return true
 end
 
-function building_lib.do_build(mapblock_pos, building_name, placement_options, callback)
+function building_lib.do_build(mapblock_pos, building_name, rotation, callback)
 	callback = callback or function() end
-	placement_options = placement_options or {}
+	rotation = rotation or 0
 
-	local building_def = building_lib.get_building(building_name)
-	if not building_def then
-		return false, "Building not found: '" .. building_name .. "'"
-	end
-
-	local success, message = building_lib.can_build(mapblock_pos, building_def)
+	local success, message = building_lib.can_build(mapblock_pos, building_name, rotation)
 	if not success then
 		return false, message
 	end
+
+	local building_def = building_lib.get_building(building_name)
+	assert(building_def)
 
 	-- place into world
 	local placement = building_lib.get_placement(building_def.placement)
@@ -143,7 +141,8 @@ function building_lib.do_build(mapblock_pos, building_name, placement_options, c
 					building_lib.store:merge(offset_mapblock_pos, {
 						building = {
 							name = building_def.name,
-							size = size
+							size = size,
+							rotation = rotation
 						}
 					})
 				else
@@ -154,10 +153,7 @@ function building_lib.do_build(mapblock_pos, building_name, placement_options, c
 		end
 	end
 
-	placement.place(placement, mapblock_pos, building_def, placement_options, callback)
-	building_lib.store:merge(mapblock_pos, {
-		placement_options = placement_options
-	})
+	placement.place(placement, mapblock_pos, building_def, rotation, callback)
 
 	return true
 end

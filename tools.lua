@@ -84,7 +84,8 @@ minetest.register_tool("building_lib:place", {
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
         local pointed_mapblock_pos = get_pointed_mapblock(player)
-        local success, err = building_lib.do_build(pointed_mapblock_pos, buildingname)
+        local rotation = building_lib.get_build_rotation(player)
+        local success, err = building_lib.do_build(pointed_mapblock_pos, buildingname, rotation)
         if not success then
             minetest.chat_send_player(player:get_player_name(), err)
         end
@@ -101,10 +102,11 @@ minetest.register_tool("building_lib:place", {
             return
         end
 
-        local size = building_lib.get_building_size(building_def)
+        local rotation = building_lib.get_build_rotation(player)
+        local size = building_lib.get_building_size(building_def, rotation)
         local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
 
-        local can_build = building_lib.can_build(pointed_mapblock_pos, building_def)
+        local can_build = building_lib.can_build(pointed_mapblock_pos, buildingname, rotation)
         local texture = "building_lib_place.png"
         if can_build then
             texture = texture .. "^[colorize:#00ff00"
@@ -136,13 +138,15 @@ minetest.register_tool("building_lib:remove", {
         local playername = player:get_player_name()
         local pointed_mapblock_pos = get_pointed_mapblock(player)
 
-        local building_def, origin = building_lib.get_building_at_pos(pointed_mapblock_pos)
-        if not building_def then
+        local building_info, origin = building_lib.get_placed_building_info(pointed_mapblock_pos)
+        if not building_info then
             building_lib.clear_preview(playername)
             return
         end
 
-        local size = building_lib.get_building_size(building_def)
+        local building_def = building_lib.get_building(building_info.name)
+
+        local size = building_lib.get_building_size(building_def, building_info.rotation)
         local mapblock_pos2 = vector.add(origin, vector.subtract(size, 1))
 
         local can_remove = building_lib.can_remove(origin)

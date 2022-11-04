@@ -10,7 +10,11 @@ building_lib.register_condition("failure", {
 building_lib.register_placement("dummy", {
     check = function() return true end,
     get_size = function() return {x=1,y=1,z=1} end,
-    place = function() end
+    place = function(_, _, _, _, callback) callback() end
+})
+
+building_lib.register_building("building_lib:dummy", {
+	placement = "dummy"
 })
 
 local function run_conditions(conditions)
@@ -76,8 +80,8 @@ end)
 
 mtt.register("build", function(callback)
     local mapblock_pos = {x=0, y=0, z=0}
-    local building_name = "building_lib:block1"
-    local success, err = building_lib.do_build(mapblock_pos, building_name, {}, function() callback() end)
+    local building_name = "building_lib:dummy"
+    local success, err = building_lib.do_build(mapblock_pos, building_name, 0, function() callback() end)
     assert(not err)
     assert(success)
 end)
