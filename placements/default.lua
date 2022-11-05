@@ -2,7 +2,7 @@
 building_lib.register_placement("default", {
 	place = function(self, mapblock_pos, building_def, rotation, callback)
 		local catalog = mapblock_lib.get_catalog(building_def.catalog)
-		local size = self.get_size(self, mapblock_pos, building_def, rotation)
+		local size = self.get_size(self, mapblock_pos, building_def, 0)
 		local catalog_pos1 = {x=0, y=0, z=0}
 		local catalog_pos2 = vector.add(catalog_pos1, vector.add(size, -1))
 		local iterator = mapblock_lib.pos_iterator(catalog_pos1, catalog_pos2)
@@ -14,10 +14,11 @@ building_lib.register_placement("default", {
 				return callback()
 			end
 
-			-- TODO: rotate position
-			-- rel_pos = mapblock_lib.rotate_pos(rel_pos, self.manifest.range, options.rotate_y)
+			-- transform catalog position
+			local rotated_catalog_pos = mapblock_lib.rotate_pos(catalog_pos, catalog_pos2, rotation)
+			-- translate to world-coords
+			local world_pos = vector.add(mapblock_pos, rotated_catalog_pos)
 
-			local world_pos = vector.add(mapblock_pos, catalog_pos)
 			catalog:deserialize(catalog_pos, world_pos, {
 				transform = {
 					rotate = {

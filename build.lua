@@ -128,7 +128,7 @@ function building_lib.do_build(mapblock_pos, building_name, rotation, callback)
 
 	-- place into world
 	local placement = building_lib.get_placement(building_def.placement)
-	local size = placement.get_size(placement, mapblock_pos, building_def)
+	local size = placement.get_size(placement, mapblock_pos, building_def, rotation)
 
 	-- write new data
 	for x=mapblock_pos.x,mapblock_pos.x+size.x-1 do
