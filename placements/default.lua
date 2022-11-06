@@ -23,7 +23,8 @@ building_lib.register_placement("default", {
 				transform = {
 					rotate = {
 						axis = "y",
-						angle = rotation
+						angle = rotation,
+						disable_orientation = building_def.disable_orientation
 					}
 				}
 			})
