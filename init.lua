@@ -14,18 +14,8 @@ dofile(MP .. "/placements/default.lua")
 dofile(MP .. "/build.lua")
 dofile(MP .. "/remove.lua")
 dofile(MP .. "/chat.lua")
+dofile(MP .. "/tools.lua")
 
-local enable_example_buildings = minetest.settings:get_bool("building_lib.enable_example_buildings")
-local enable_tests = minetest.get_modpath("mtt") and mtt.enabled
-
-if enable_tests then
+if minetest.get_modpath("mtt") and mtt.enabled then
 	dofile(MP .. "/build.spec.lua")
-end
-
-if enable_tests or enable_example_buildings then
-	dofile(MP .. "/example_buildings.lua")
-end
-
-if minetest.settings:get_bool("building_lib.enable_tools") then
-	dofile(MP .. "/tools.lua")
 end
