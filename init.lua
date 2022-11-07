@@ -15,6 +15,7 @@ dofile(MP .. "/build.lua")
 dofile(MP .. "/remove.lua")
 dofile(MP .. "/chat.lua")
 dofile(MP .. "/tools.lua")
+dofile(MP .. "/mapgen.lua")
 
 if minetest.get_modpath("mtt") and mtt.enabled then
 	dofile(MP .. "/build.spec.lua")
