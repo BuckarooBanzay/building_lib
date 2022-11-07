@@ -69,6 +69,17 @@ local function check_free(mapblock_pos)
 	end
 end
 
+local function apply_rotation_offset(building_def, rotation)
+	if building_def.rotation_offset then
+		rotation = rotation + building_def.rotation_offset
+		while rotation >= 360 do
+			rotation = rotation - 360
+		end
+	end
+
+	return rotation
+end
+
 function building_lib.can_build(mapblock_pos, building_name, rotation)
 	local building_def = building_lib.get_building(building_name)
 	if not building_def then
@@ -77,6 +88,8 @@ function building_lib.can_build(mapblock_pos, building_name, rotation)
 
 	-- check placement definition
 	local placement = building_lib.get_placement(building_def.placement)
+
+	rotation = apply_rotation_offset(building_def, rotation)
 
 	-- check the conditions on every mapblock the building would occupy
 	local size, message = placement.get_size(placement, mapblock_pos, building_def, rotation)
@@ -125,6 +138,8 @@ function building_lib.do_build(mapblock_pos, building_name, rotation, callback)
 
 	local building_def = building_lib.get_building(building_name)
 	assert(building_def)
+
+	rotation = apply_rotation_offset(building_def, rotation)
 
 	-- place into world
 	local placement = building_lib.get_placement(building_def.placement)
