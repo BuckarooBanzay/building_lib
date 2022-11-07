@@ -14,10 +14,10 @@ end
 
 function building_lib.show_preview(playername, add, building_def, mapblock_pos1, mapblock_pos2, rotation)
 
-	local texture
+	local texture, can_build
 
 	if add then
-		local can_build = building_lib.can_build(mapblock_pos1, building_def.name, rotation)
+		can_build = building_lib.can_build(mapblock_pos1, building_def.name, rotation)
 		texture = "building_lib_place.png"
 		if can_build then
 			texture = texture .. "^[colorize:#00ff00"
@@ -94,6 +94,37 @@ function building_lib.show_preview(playername, add, building_def, mapblock_pos1,
 		vector.add(min, {x=half_size.x-0.5, y=size.y-0.5, z=half_size.z-0.5}),
 		{x=math.pi/2, y=0, z=0}
 	)
+
+	if add and building_def.markers then
+		-- add markers
+		local texture_modifier = can_build and "^[colorize:#00ff00" or "^[colorize:#ffff00"
+		local unrotated_size = building_lib.get_building_size(building_def, 360 - rotation)
+
+		for _, marker in ipairs(building_def.markers) do
+			local rotated_position = mapblock_lib.rotate_pos(marker.position, unrotated_size, rotation)
+			local node_pos = vector.multiply(vector.add(mapblock_pos1, rotated_position), 16)
+			node_pos = vector.subtract(node_pos, 0.5)
+			local z_rotation = marker.rotation.z
+
+			if rotation == 90 then
+				z_rotation = z_rotation - math.pi/2
+			elseif rotation == 180 then
+				z_rotation = z_rotation + math.pi
+			elseif rotation == 270 then
+				z_rotation = z_rotation + math.pi/2
+			end
+
+			add_preview_entity(
+				marker.texture .. texture_modifier,
+				key, marker.size,
+				node_pos, {
+					x=marker.rotation.x,
+					y=marker.rotation.y,
+					z=z_rotation
+				}
+			)
+		end
+	end
 end
 
 function building_lib.clear_preview(playername)
