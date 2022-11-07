@@ -48,6 +48,44 @@ function building_lib.create_mapgen(opts)
 
     local height_perlin, temperature_perlin, humidity_perlin
 
+    -- [x .. "/" .. z] = @number
+    local height_cache = {}
+    local function get_height(mapblock_pos)
+        local key = mapblock_pos.x .. "/" .. mapblock_pos.z
+        if not height_cache[key] then
+            height_perlin = height_perlin or minetest.get_perlin_map(opts.height_params, map_lengths_xyz)
+            local height_perlin_map = {}
+            height_perlin:get_2d_map_flat({x=mapblock_pos.x, y=mapblock_pos.z}, height_perlin_map)
+            local height = math.floor(math.abs(height_perlin_map[1]) * 6) -1
+            height_cache[key] = height
+        end
+        return height_cache[key]
+    end
+
+    -- [x .. "/" .. z] = @number
+    local temperature_cache = {}
+    local humidity_cache = {}
+    local function get_temperature_humidity(mapblock_pos)
+        local key = mapblock_pos.x .. "/" .. mapblock_pos.z
+        if not temperature_cache[key] then
+            temperature_perlin = temperature_perlin or minetest.get_perlin_map(opts.temperature_params, map_lengths_xyz)
+            humidity_perlin = humidity_perlin or minetest.get_perlin_map(opts.humidity_params, map_lengths_xyz)
+
+            local temperature_perlin_map = {}
+            local humidity_perlin_map = {}
+
+            temperature_perlin:get_2d_map_flat({x=mapblock_pos.x, y=mapblock_pos.z}, temperature_perlin_map)
+            humidity_perlin:get_2d_map_flat({x=mapblock_pos.x, y=mapblock_pos.z}, humidity_perlin_map)
+
+            local temperature = math.floor(math.abs(temperature_perlin_map[1]) * 100)
+            local humidity = math.floor(math.abs(humidity_perlin_map[1]) * 100)
+
+            temperature_cache[key] = temperature
+            humidity_cache[key] = humidity
+        end
+        return temperature_cache[key], humidity_cache[key]
+    end
+
     return function(minp, maxp)
         local min_mapblock = mapblock_lib.get_mapblock(minp)
         local max_mapblock = mapblock_lib.get_mapblock(maxp)
@@ -57,9 +95,6 @@ function building_lib.create_mapgen(opts)
             return
         end
 
-        height_perlin = height_perlin or minetest.get_perlin_map(opts.height_params, map_lengths_xyz)
-        temperature_perlin = temperature_perlin or minetest.get_perlin_map(opts.temperature_params, map_lengths_xyz)
-        humidity_perlin = humidity_perlin or minetest.get_perlin_map(opts.humidity_params, map_lengths_xyz)
 
         for x=min_mapblock.x,max_mapblock.x do
         for y=min_mapblock.y,max_mapblock.y do
@@ -70,17 +105,8 @@ function building_lib.create_mapgen(opts)
             end
 
             local mapblock_pos = { x=x, y=y, z=z }
-            local height_perlin_map = {}
-            local temperature_perlin_map = {}
-            local humidity_perlin_map = {}
-
-            height_perlin:get_2d_map_flat({x=mapblock_pos.x, y=mapblock_pos.z}, height_perlin_map)
-            temperature_perlin:get_2d_map_flat({x=mapblock_pos.x, y=mapblock_pos.z}, temperature_perlin_map)
-            humidity_perlin:get_2d_map_flat({x=mapblock_pos.x, y=mapblock_pos.z}, humidity_perlin_map)
-
-            local height = math.floor(math.abs(height_perlin_map[1]) * 6) -1
-            local temperature = math.floor(math.abs(temperature_perlin_map[1]) * 100)
-            local humidity = math.floor(math.abs(humidity_perlin_map[1]) * 100)
+            local temperature, humidity = get_temperature_humidity(mapblock_pos)
+            local height = get_height(mapblock_pos)
 
             local biome = select_biome(opts.biomes, temperature, humidity)
 
