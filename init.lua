@@ -5,7 +5,8 @@ building_lib = {
 }
 
 local MP = minetest.get_modpath("building_lib")
-dofile(MP .. "/display.lua")
+dofile(MP .. "/entity.lua")
+dofile(MP .. "/preview.lua")
 dofile(MP .. "/api.lua")
 dofile(MP .. "/wield_events.lua")
 dofile(MP .. "/common.lua")
