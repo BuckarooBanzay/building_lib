@@ -12,7 +12,30 @@ local function add_preview_entity(texture, key, visual_size, pos, rotation)
 	ent:set_rotation(rotation)
 end
 
-function building_lib.show_preview(texture, playername, mapblock_pos1, mapblock_pos2)
+function building_lib.show_preview(playername, add, building_def, mapblock_pos1, mapblock_pos2, rotation)
+
+	local texture
+
+	if add then
+		local can_build = building_lib.can_build(mapblock_pos1, building_def.name, rotation)
+		texture = "building_lib_place.png"
+		if can_build then
+			texture = texture .. "^[colorize:#00ff00"
+		else
+			texture = texture .. "^[colorize:#ffff00"
+		end
+	else
+		-- remove
+		texture = "building_lib_remove.png"
+		local can_remove = building_lib.can_remove(mapblock_pos1)
+        if can_remove then
+            texture = texture .. "^[colorize:#ff0000"
+        else
+            texture = texture .. "^[colorize:#ffff00"
+        end
+	end
+
+
 	mapblock_pos2 = mapblock_pos2 or mapblock_pos1
 	local key = minetest.pos_to_string(mapblock_pos1) .. "/" .. minetest.pos_to_string(mapblock_pos2) .. "/" .. texture
 

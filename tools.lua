@@ -68,10 +68,6 @@ minetest.register_on_player_receive_fields(function(player, f, fields)
     end
 end)
 
-local function get_pointed_mapblock(player)
-    return mapblock_lib.get_pointed_position(player, 2)
-end
-
 minetest.register_tool("building_lib:place", {
     description = "building_lib placer",
     inventory_image = "building_lib_place.png^[colorize:#00ff00",
@@ -83,7 +79,7 @@ minetest.register_tool("building_lib:place", {
     on_use = function(itemstack, player)
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
-        local pointed_mapblock_pos = get_pointed_mapblock(player)
+        local pointed_mapblock_pos = building_lib.get_pointed_mapblock(player)
         local rotation = building_lib.get_build_rotation(player)
         local success, err = building_lib.do_build(pointed_mapblock_pos, buildingname, rotation)
         if not success then
@@ -92,7 +88,7 @@ minetest.register_tool("building_lib:place", {
     end,
     on_step = function(itemstack, player)
         local playername = player:get_player_name()
-        local pointed_mapblock_pos = get_pointed_mapblock(player)
+        local mapblock_pos1 = building_lib.get_pointed_mapblock(player)
 
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
@@ -104,17 +100,9 @@ minetest.register_tool("building_lib:place", {
 
         local rotation = building_lib.get_build_rotation(player)
         local size = building_lib.get_building_size(building_def, rotation)
-        local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
+        local mapblock_pos2 = vector.add(mapblock_pos1, vector.subtract(size, 1))
 
-        local can_build = building_lib.can_build(pointed_mapblock_pos, buildingname, rotation)
-        local texture = "building_lib_place.png"
-        if can_build then
-            texture = texture .. "^[colorize:#00ff00"
-        else
-            texture = texture .. "^[colorize:#ffff00"
-        end
-
-        building_lib.show_preview(texture, playername, pointed_mapblock_pos, mapblock_pos2)
+        building_lib.show_preview(playername, true, building_def, mapblock_pos1, mapblock_pos2, rotation)
     end,
     on_blur = function(player)
         local playername = player:get_player_name()
@@ -128,7 +116,7 @@ minetest.register_tool("building_lib:remove", {
     stack_max = 1,
     range = 0,
     on_use = function(_, player)
-        local mapblock_pos = get_pointed_mapblock(player)
+        local mapblock_pos = building_lib.get_pointed_mapblock(player)
         local success, err = building_lib.do_remove(mapblock_pos)
         if not success then
             minetest.chat_send_player(player:get_player_name(), err)
@@ -136,7 +124,7 @@ minetest.register_tool("building_lib:remove", {
     end,
     on_step = function(_, player)
         local playername = player:get_player_name()
-        local pointed_mapblock_pos = get_pointed_mapblock(player)
+        local pointed_mapblock_pos = building_lib.get_pointed_mapblock(player)
 
         local building_info, origin = building_lib.get_placed_building_info(pointed_mapblock_pos)
         if not building_info then
@@ -149,15 +137,7 @@ minetest.register_tool("building_lib:remove", {
         local size = building_lib.get_building_size(building_def, building_info.rotation or 0)
         local mapblock_pos2 = vector.add(origin, vector.subtract(size, 1))
 
-        local can_remove = building_lib.can_remove(origin)
-        local texture = "building_lib_remove.png"
-        if can_remove then
-            texture = texture .. "^[colorize:#ff0000"
-        else
-            texture = texture .. "^[colorize:#ffff00"
-        end
-
-        building_lib.show_preview(texture, playername, origin, mapblock_pos2)
+        building_lib.show_preview(playername, false, building_def, origin, mapblock_pos2, building_info.rotation)
     end,
     on_blur = function(player)
         local playername = player:get_player_name()

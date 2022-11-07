@@ -32,3 +32,7 @@ function building_lib.get_build_rotation(player)
 	end
 	return rotation
 end
+
+function building_lib.get_pointed_mapblock(player)
+    return mapblock_lib.get_pointed_position(player, 2)
+end
