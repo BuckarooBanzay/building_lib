@@ -9,7 +9,7 @@ building_lib.register_placement("default", {
 
 		if type(building_def.catalog) == "table" then
 			catalog = mapblock_lib.get_catalog(building_def.catalog.filename)
-			offset = building_def.catalog.offset
+			offset = building_def.catalog.offset or {x=0, y=0, z=0}
 			cache = building_def.catalog.cache
 		else
 			catalog = mapblock_lib.get_catalog(building_def.catalog)
@@ -53,7 +53,8 @@ building_lib.register_placement("default", {
 						axis = "y",
 						angle = rotation,
 						disable_orientation = building_def.disable_orientation
-					}
+					},
+					replace = building_def.replace
 				}
 			})
 
@@ -74,7 +75,7 @@ building_lib.register_placement("default", {
 	get_size = function(_, _, building_def, rotation)
 		local size
 		if type(building_def.catalog) == "table" then
-			size = building_def.catalog.size
+			size = building_def.catalog.size or {x=1, y=1, z=1}
 		else
 			local catalog = mapblock_lib.get_catalog(building_def.catalog)
 			size = catalog:get_size()
