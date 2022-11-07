@@ -17,6 +17,7 @@ function building_lib.create_mapgen(opts)
     assert(#opts.biomes > 0)
 
     local map_lengths_xyz = {x=1, y=1, z=1}
+    opts.water_level = opts.water_level or 0
 
     opts.height_params = opts.height_params or {
         offset = 0,
@@ -51,13 +52,23 @@ function building_lib.create_mapgen(opts)
         local min_mapblock = mapblock_lib.get_mapblock(minp)
         local max_mapblock = mapblock_lib.get_mapblock(maxp)
 
+        if max_mapblock.y < opts.from_y or min_mapblock.y > opts.to_y then
+            -- check broad y-range
+            return
+        end
+
         height_perlin = height_perlin or minetest.get_perlin_map(opts.height_params, map_lengths_xyz)
         temperature_perlin = temperature_perlin or minetest.get_perlin_map(opts.temperature_params, map_lengths_xyz)
         humidity_perlin = humidity_perlin or minetest.get_perlin_map(opts.humidity_params, map_lengths_xyz)
 
-        for z=min_mapblock.z,max_mapblock.z do
         for x=min_mapblock.x,max_mapblock.x do
         for y=min_mapblock.y,max_mapblock.y do
+        for z=min_mapblock.z,max_mapblock.z do
+            if y < opts.from_y or y > opts.to_y then
+                -- check exact y-range
+                break
+            end
+
             local mapblock_pos = { x=x, y=y, z=z }
             local height_perlin_map = {}
             local temperature_perlin_map = {}
@@ -73,11 +84,15 @@ function building_lib.create_mapgen(opts)
 
             local biome = select_biome(opts.biomes, temperature, humidity)
 
-            if mapblock_pos.y <= height then
+            if mapblock_pos.y == opts.water_level and height <= mapblock_pos.y then
+                -- nothing above, place water building
+                building_lib.do_build_mapgen(mapblock_pos, biome.buildings.water, 0)
+            elseif mapblock_pos.y <= height then
+                -- regular "occupied" space
                 building_lib.do_build_mapgen(mapblock_pos, biome.buildings.full, 0)
             end
+        end --z
         end --y
         end --x
-        end --z
     end
 end
