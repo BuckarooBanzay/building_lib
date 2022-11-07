@@ -146,7 +146,7 @@ minetest.register_tool("building_lib:remove", {
 
         local building_def = building_lib.get_building(building_info.name)
 
-        local size = building_lib.get_building_size(building_def, building_info.rotation)
+        local size = building_lib.get_building_size(building_def, building_info.rotation or 0)
         local mapblock_pos2 = vector.add(origin, vector.subtract(size, 1))
 
         local can_remove = building_lib.can_remove(origin)

@@ -157,3 +157,18 @@ function building_lib.do_build(mapblock_pos, building_name, rotation, callback)
 
 	return true
 end
+
+-- mapgen build shortcut, only for 1x1x1 sized buildings
+function building_lib.do_build_mapgen(mapblock_pos, building_name, rotation)
+	local building_def = building_lib.get_building(building_name)
+	local placement = building_lib.get_placement(building_def.placement)
+
+	building_lib.store:merge(mapblock_pos, {
+		building = {
+			name = building_def.name,
+			rotation = rotation
+		}
+	})
+
+	placement.place(placement, mapblock_pos, building_def, rotation)
+end

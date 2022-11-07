@@ -1,14 +1,30 @@
 
 building_lib.register_placement("default", {
 	place = function(self, mapblock_pos, building_def, rotation, callback)
+		callback = callback or function() end
+
 		local catalog
 		local offset = {x=0, y=0, z=0}
+		local cache = false
+
 		if type(building_def.catalog) == "table" then
 			catalog = mapblock_lib.get_catalog(building_def.catalog.filename)
 			offset = building_def.catalog.offset
+			cache = building_def.catalog.cache
 		else
 			catalog = mapblock_lib.get_catalog(building_def.catalog)
 		end
+
+		if cache and building_def._cache and building_def._cache[rotation] then
+			-- rotated building already cached
+			building_def._cache[rotation](mapblock_pos)
+			callback()
+			return
+		else
+			-- initialize cache if not already done
+			building_def._cache = building_def._cache or {}
+		end
+
 		local size = self.get_size(self, mapblock_pos, building_def, 0)
 
 		local catalog_pos1 = vector.add({x=0, y=0, z=0}, offset)
@@ -31,7 +47,7 @@ building_lib.register_placement("default", {
 			-- translate to world-coords
 			local world_pos = vector.add(mapblock_pos, rotated_rel_catalog_pos)
 
-			catalog:deserialize(catalog_pos, world_pos, {
+			local place_fn = catalog:prepare(catalog_pos, {
 				transform = {
 					rotate = {
 						axis = "y",
@@ -41,11 +57,20 @@ building_lib.register_placement("default", {
 				}
 			})
 
+			-- cache prepared mapblock if enabled
+			if cache then
+				-- verify size constraints for caching
+				assert(vector.equals(size, {x=1, y=1, z=1}))
+				building_def._cache[rotation] = place_fn
+			end
+
+			place_fn(world_pos)
 			minetest.after(0, worker)
 		end
 
 		worker()
 	end,
+
 	get_size = function(_, _, building_def, rotation)
 		local size
 		if type(building_def.catalog) == "table" then
@@ -56,6 +81,7 @@ building_lib.register_placement("default", {
 		end
 		return mapblock_lib.rotate_size(size, rotation)
 	end,
+
 	validate = function(_, building_def)
 		local catalogfilename = building_def.catalog
 		if type(building_def.catalog) == "table" then

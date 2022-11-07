@@ -20,7 +20,7 @@ function building_lib.do_remove(mapblock_pos)
     end
 
     local mapblock_data, origin = mapblock_lib.resolve_data_link(building_lib.store, mapblock_pos)
-    local size = mapblock_data.building.size
+    local size = mapblock_data.building.size or {x=1, y=1, z=1}
 
     for x=origin.x,origin.x+size.x-1 do
         for y=origin.y,origin.y+size.y-1 do
