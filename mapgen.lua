@@ -86,6 +86,18 @@ function building_lib.create_mapgen(opts)
         return temperature_cache[key], humidity_cache[key]
     end
 
+    -- return a map with every lower-height blocks flagged
+    local function get_height_map(mapblock_pos, height)
+        local hm = {}
+        for x=-1,1 do
+            hm[x] = {}
+            for z=-1,1 do
+                hm[x][z] = get_height(vector.add(mapblock_pos, {x=x,y=0,z=z})) < height
+            end
+        end
+        return hm
+    end
+
     return function(minp, maxp)
         local min_mapblock = mapblock_lib.get_mapblock(minp)
         local max_mapblock = mapblock_lib.get_mapblock(maxp)
@@ -113,9 +125,60 @@ function building_lib.create_mapgen(opts)
             if mapblock_pos.y == opts.water_level and height <= mapblock_pos.y then
                 -- nothing above, place water building
                 building_lib.do_build_mapgen(mapblock_pos, biome.buildings.water, 0)
-            elseif mapblock_pos.y <= height then
-                -- regular "occupied" space
+            elseif mapblock_pos.y < height then
+                -- subsurface
                 building_lib.do_build_mapgen(mapblock_pos, biome.buildings.full, 0)
+            elseif mapblock_pos.y == height then
+                -- surface
+
+                -- check if neighbors are lower
+                local hm = get_height_map(mapblock_pos, height)
+
+                local building_name = biome.buildings.full
+                local rotation = 0
+
+                -- normal slopes
+                if hm[-1][0] and not hm[1][0] and not hm[0][-1] and not hm[0][1] then
+                    building_name = biome.buildings.slope
+                    rotation = 90
+                elseif not hm[-1][0] and hm[1][0] and not hm[0][-1] and not hm[0][1] then
+                    building_name = biome.buildings.slope
+                    rotation = 270
+                elseif not hm[-1][0] and not hm[1][0] and hm[0][-1] and not hm[0][1] then
+                    building_name = biome.buildings.slope
+                    rotation = 0
+                elseif not hm[-1][0] and not hm[1][0] and not hm[0][-1] and hm[0][1] then
+                    building_name = biome.buildings.slope
+                    rotation = 180
+                -- outer slopes
+                elseif hm[0][-1] and hm[-1][0] and not hm[0][1] and not hm[1][0] then
+                    building_name = biome.buildings.slope_outer
+                    rotation = 90
+                elseif not hm[0][-1] and hm[-1][0] and hm[0][1] and not hm[1][0] then
+                    building_name = biome.buildings.slope_outer
+                    rotation = 180
+                elseif not hm[0][-1] and not hm[-1][0] and hm[0][1] and hm[1][0] then
+                    building_name = biome.buildings.slope_outer
+                    rotation = 270
+                elseif hm[0][-1] and not hm[-1][0] and not hm[0][1] and hm[1][0] then
+                    building_name = biome.buildings.slope_outer
+                    rotation = 0
+                -- inner slopes
+                elseif hm[-1][-1] and not hm[-1][1] and not hm[1][1] and not hm[1][-1] then
+                    building_name = biome.buildings.slope_inner
+                    rotation = 90
+                elseif not hm[-1][-1] and hm[-1][1] and not hm[1][1] and not hm[1][-1] then
+                    building_name = biome.buildings.slope_inner
+                    rotation = 180
+                elseif not hm[-1][-1] and not hm[-1][1] and hm[1][1] and not hm[1][-1] then
+                    building_name = biome.buildings.slope_inner
+                    rotation = 270
+                elseif not hm[-1][-1] and not hm[-1][1] and not hm[1][1] and hm[1][-1] then
+                    building_name = biome.buildings.slope_inner
+                    rotation = 0
+                end
+
+                building_lib.do_build_mapgen(mapblock_pos, building_name, rotation)
             end
         end --z
         end --y
