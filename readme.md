@@ -21,7 +21,7 @@ building_lib.register_building("buildings:my_building", {
 		{ on_slope = true, on_biome = "grass" },
 		{ on_flat_surface = true, on_biome = "water" },
 	},
-	catalog = "",
+	catalog = "my.zip",
 	-- optional groups attribute
 	groups = {
 		building = true
