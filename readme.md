@@ -5,10 +5,10 @@
 
 ```lua
 -- check if something can be built there
-local success, message = building_lib.can_build(mapblock_pos, building_name, rotation)
+local success, message = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
 
 -- build it there
-local success, message = building_lib.do_build(mapblock_pos, building_name, rotation, callback)
+local success, message = building_lib.do_build(mapblock_pos, playername, building_name, rotation, callback)
 
 -- registers a placeable building
 building_lib.register_building("buildings:my_building", {

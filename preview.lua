@@ -17,7 +17,7 @@ function building_lib.show_preview(playername, add, building_def, mapblock_pos1,
 	local texture, can_build
 
 	if add then
-		can_build = building_lib.can_build(mapblock_pos1, building_def.name, rotation)
+		can_build = building_lib.can_build(mapblock_pos1, playername, building_def.name, rotation)
 		texture = "building_lib_place.png"
 		if can_build then
 			texture = texture .. "^[colorize:#00ff00"

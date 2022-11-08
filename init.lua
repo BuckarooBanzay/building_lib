@@ -1,7 +1,10 @@
 
 building_lib = {
 	-- data storage
-	store = mapblock_lib.create_data_storage(minetest.get_mod_storage())
+	store = mapblock_lib.create_data_storage(minetest.get_mod_storage()),
+
+	-- special mapgen owner constant
+	mapgen_owned = "$$mapgen"
 }
 
 local MP = minetest.get_modpath("building_lib")

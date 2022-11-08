@@ -80,7 +80,7 @@ local function apply_rotation_offset(building_def, rotation)
 	return rotation
 end
 
-function building_lib.can_build(mapblock_pos, building_name, rotation)
+function building_lib.can_build(mapblock_pos, _, building_name, rotation)
 	local building_def = building_lib.get_building(building_name)
 	if not building_def then
 		return false, "Building not found: '" .. building_name .. "'"
@@ -128,11 +128,11 @@ function building_lib.can_build(mapblock_pos, building_name, rotation)
 	return true
 end
 
-function building_lib.do_build(mapblock_pos, building_name, rotation, callback)
+function building_lib.do_build(mapblock_pos, playername, building_name, rotation, callback)
 	callback = callback or function() end
 	rotation = rotation or 0
 
-	local success, message = building_lib.can_build(mapblock_pos, building_name, rotation)
+	local success, message = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
 	if not success then
 		return false, message
 	end
@@ -154,7 +154,8 @@ function building_lib.do_build(mapblock_pos, building_name, rotation, callback)
 				building = {
 					name = building_def.name,
 					size = size,
-					rotation = rotation
+					rotation = rotation,
+					owner = playername
 				}
 			})
 		else
@@ -176,7 +177,8 @@ function building_lib.do_build_mapgen(mapblock_pos, building_name, rotation)
 	building_lib.store:merge(mapblock_pos, {
 		building = {
 			name = building_def.name,
-			rotation = rotation
+			rotation = rotation,
+			owner = building_lib.mapgen_owned
 		}
 	})
 
