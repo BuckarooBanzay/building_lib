@@ -46,6 +46,10 @@ building_lib.register_placement("default", {
 
 			-- translate to world-coords
 			local world_pos = vector.add(mapblock_pos, rotated_rel_catalog_pos)
+			local replace = building_def.replace
+			if type(building_def.replace) == "function" then
+				replace = building_def.replace(mapblock_pos, building_def)
+			end
 
 			local place_fn = catalog:prepare(catalog_pos, {
 				transform = {
@@ -54,7 +58,7 @@ building_lib.register_placement("default", {
 						angle = rotation,
 						disable_orientation = building_def.disable_orientation
 					},
-					replace = building_def.replace
+					replace = replace
 				}
 			})
 

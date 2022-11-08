@@ -10,6 +10,12 @@ local success, message = building_lib.can_build(mapblock_pos, playername, buildi
 -- build it there
 local success, message = building_lib.do_build(mapblock_pos, playername, building_name, rotation, callback)
 
+-- check if it can be removed
+local success, message = building_lib.can_remove(mapblock_pos)
+
+-- remove it
+local success, message = building_lib.do_remove(mapblock_pos)
+
 -- registers a placeable building
 building_lib.register_building("buildings:my_building", {
 	placement = "default",
@@ -21,11 +27,32 @@ building_lib.register_building("buildings:my_building", {
 		{ on_slope = true, on_biome = "grass" },
 		{ on_flat_surface = true, on_biome = "water" },
 	},
+	-- simple catalog
 	catalog = "my.zip",
+	-- more catalog options
+	catalog = {
+		filename = "my.zip",
+		-- offset in the catalog
+		offset = {x=0, y=2, z=0},
+		-- size
+		size = {x=1, y=1, z=1},
+		-- enable cache (only for 1x1x1 sized buildings, for mapgens)
+		cache = true
+	},
 	-- optional groups attribute
 	groups = {
 		building = true
-	}
+	},
+	-- replacements
+	replace = {
+		["old_mod:node"] = "new_mod:node"
+	},
+	-- replacements as a function, can be used for biome-replacements
+	replace = function(mapblock_pos, building_def)
+		return {
+			["old_mod:node"] = "new_mod:node"
+		}
+	end
 })
 
 -- registers a placement type (connected, simple, etc)

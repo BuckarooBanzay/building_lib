@@ -117,9 +117,9 @@ function building_lib.create_mapgen(opts)
             end
 
             local mapblock_pos = { x=x, y=y, z=z }
-            local temperature, humidity = get_temperature_humidity(mapblock_pos)
             local height = get_height(mapblock_pos)
 
+            local temperature, humidity = get_temperature_humidity(mapblock_pos)
             local biome = select_biome(opts.biomes, temperature, humidity)
 
             if mapblock_pos.y == opts.water_level and height <= mapblock_pos.y then
@@ -183,5 +183,12 @@ function building_lib.create_mapgen(opts)
         end --z
         end --y
         end --x
-    end
+    end, {
+        get_height = get_height,
+        get_temperature_humidity = get_temperature_humidity,
+        get_biome = function(mapblock_pos)
+            local temperature, humidity = get_temperature_humidity(mapblock_pos)
+            return select_biome(opts.biomes, temperature, humidity)
+        end
+    }
 end
