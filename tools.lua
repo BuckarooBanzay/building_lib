@@ -5,6 +5,7 @@ local function get_building_list()
     for name in pairs(building_lib.get_buildings()) do
         table.insert(building_list, name)
     end
+    table.sort(building_list, function(a,b) return a < b end)
     return building_list
 end
 

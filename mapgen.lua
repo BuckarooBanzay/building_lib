@@ -98,6 +98,11 @@ function building_lib.create_mapgen(opts)
         return hm
     end
 
+    local function is_water(mapblock_pos)
+        local height = get_height(mapblock_pos)
+        return mapblock_pos.y == opts.water_level and height <= mapblock_pos.y
+    end
+
     return function(minp, maxp)
         local min_mapblock = mapblock_lib.get_mapblock(minp)
         local max_mapblock = mapblock_lib.get_mapblock(maxp)
@@ -122,7 +127,7 @@ function building_lib.create_mapgen(opts)
             local temperature, humidity = get_temperature_humidity(mapblock_pos)
             local biome = select_biome(opts.biomes, temperature, humidity)
 
-            if mapblock_pos.y == opts.water_level and height <= mapblock_pos.y then
+            if is_water(mapblock_pos) then
                 -- nothing above, place water building
                 building_lib.do_build_mapgen(mapblock_pos, biome.buildings.water, 0)
             elseif mapblock_pos.y < height then
@@ -189,6 +194,7 @@ function building_lib.create_mapgen(opts)
         get_biome = function(mapblock_pos)
             local temperature, humidity = get_temperature_humidity(mapblock_pos)
             return select_biome(opts.biomes, temperature, humidity)
-        end
+        end,
+        is_water = is_water
     }
 end
