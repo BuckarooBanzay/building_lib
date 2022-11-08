@@ -97,29 +97,30 @@ function building_lib.can_build(mapblock_pos, building_name, rotation)
 		return false, message or "size check '" .. building_def.placement .. "' failed"
 	end
 
-	for x=mapblock_pos.x, mapblock_pos.x+size.x-1 do
-		for z=mapblock_pos.z, mapblock_pos.z+size.z-1 do
-			for y=mapblock_pos.y, mapblock_pos.y+size.y-1 do
-				local offset_mapblock_pos = {x=x, y=y, z=z}
-				local is_free = check_free(offset_mapblock_pos)
-				if not is_free then
-					return false, "Space already occupied at " .. minetest.pos_to_string(offset_mapblock_pos)
-				end
+	local it = mapblock_lib.pos_iterator(mapblock_pos, vector.add(mapblock_pos, vector.subtract(size, 1)))
+	while true do
+		local offset_mapblock_pos = it()
+		if not offset_mapblock_pos then
+			break
+		end
 
-				local success
-				if y == mapblock_pos.y then
-					-- check ground conditions
-					success, message = building_lib.check_conditions(offset_mapblock_pos, building_def.ground_conditions, building_def)
-					if not success then
-						return false, message
-					end
-				end
+		local is_free = check_free(offset_mapblock_pos)
+		if not is_free then
+			return false, "Space already occupied at " .. minetest.pos_to_string(offset_mapblock_pos)
+		end
 
-				success, message = building_lib.check_conditions(offset_mapblock_pos, building_def.conditions, building_def)
-				if not success then
-					return false, message
-				end
+		local success
+		if offset_mapblock_pos.y == mapblock_pos.y then
+			-- check ground conditions
+			success, message = building_lib.check_conditions(offset_mapblock_pos, building_def.ground_conditions, building_def)
+			if not success then
+				return false, message
 			end
+		end
+
+		success, message = building_lib.check_conditions(offset_mapblock_pos, building_def.conditions, building_def)
+		if not success then
+			return false, message
 		end
 	end
 
@@ -146,27 +147,21 @@ function building_lib.do_build(mapblock_pos, building_name, rotation, callback)
 	local size = placement.get_size(placement, mapblock_pos, building_def, rotation)
 
 	-- write new data
-	for x=mapblock_pos.x,mapblock_pos.x+size.x-1 do
-		for y=mapblock_pos.y,mapblock_pos.y+size.y-1 do
-			for z=mapblock_pos.z,mapblock_pos.z+size.z-1 do
-				local offset_mapblock_pos = {x=x, y=y, z=z}
-
-				if vector.equals(offset_mapblock_pos, mapblock_pos) then
-					-- origin
-					building_lib.store:merge(offset_mapblock_pos, {
-						building = {
-							name = building_def.name,
-							size = size,
-							rotation = rotation
-						}
-					})
-				else
-					-- link to origin
-					building_lib.store:merge(offset_mapblock_pos, mapblock_lib.create_data_link(mapblock_pos))
-				end
-			end
+	mapblock_lib.for_each(mapblock_pos, vector.add(mapblock_pos, vector.subtract(size, 1)), function(offset_mapblock_pos)
+		if vector.equals(offset_mapblock_pos, mapblock_pos) then
+			-- origin
+			building_lib.store:merge(offset_mapblock_pos, {
+				building = {
+					name = building_def.name,
+					size = size,
+					rotation = rotation
+				}
+			})
+		else
+			-- link to origin
+			building_lib.store:merge(offset_mapblock_pos, mapblock_lib.create_data_link(mapblock_pos))
 		end
-	end
+	end)
 
 	placement.place(placement, mapblock_pos, building_def, rotation, callback)
 
