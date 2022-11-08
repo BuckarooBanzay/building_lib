@@ -52,7 +52,14 @@ building_lib.register_building("buildings:my_building", {
 		return {
 			["old_mod:node"] = "new_mod:node"
 		}
-	end
+	end,
+	-- build-over config
+	build_over = {
+		-- by group
+		groups = {"my_group"},
+		-- by name
+		names = {"other_building:name"}
+	}
 })
 
 -- registers a placement type (connected, simple, etc)

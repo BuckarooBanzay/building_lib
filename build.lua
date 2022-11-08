@@ -97,6 +97,51 @@ function building_lib.can_build(mapblock_pos, _, building_name, rotation)
 		return false, message or "size check '" .. building_def.placement .. "' failed"
 	end
 
+	-- check if we can build over other buildings
+	if building_def.build_over then
+		local other_building_info, origin = building_lib.get_placed_building_info(mapblock_pos)
+		if other_building_info then
+			-- other building exists, check if it matches
+			if not vector.equals(other_building_info.size or {x=1,y=1,z=1}, size) then
+				return false, "Existing building has different size"
+			end
+
+			if not vector.equals(origin, mapblock_pos) then
+				return false, "Placement-origin mismatch"
+			end
+
+			local other_building_def = building_lib.get_building(other_building_info.name)
+			if not other_building_def then
+				return false, "Unknown building"
+			end
+
+			local matches = false
+			if building_def.build_over.groups then
+				for _, group in ipairs(building_def.build_over.groups) do
+					if other_building_def[group] then
+						matches = true
+						break
+					end
+				end
+			end
+
+			if not matches and building_def.build_over.names then
+				for _, name in ipairs(building_def.build_over.names) do
+					if name == other_building_def.name then
+						matches = true
+						break
+					end
+				end
+			end
+
+			if not matches then
+				-- can't build over pointed building
+				-- TODO: proper pointed position
+				return false, "Existing building can't be built over"
+			end
+		end
+	end
+
 	local it = mapblock_lib.pos_iterator(mapblock_pos, vector.add(mapblock_pos, vector.subtract(size, 1)))
 	while true do
 		local offset_mapblock_pos = it()
