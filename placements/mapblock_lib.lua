@@ -1,5 +1,6 @@
 
-building_lib.register_placement("default", {
+-- mapblock_lib schematic catalog
+building_lib.register_placement("mapblock_lib", {
 	place = function(self, mapblock_pos, building_def, rotation, callback)
 		callback = callback or function() end
 

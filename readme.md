@@ -18,7 +18,7 @@ local success, message = building_lib.remove(mapblock_pos)
 
 -- registers a placeable building
 building_lib.register_building("buildings:my_building", {
-	placement = "default",
+	placement = "mapblock_lib",
 	conditions = {
 		-- OR
 		on_flat_surface = true,

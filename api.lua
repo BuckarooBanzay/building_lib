@@ -4,7 +4,7 @@ local buildings = {}
 
 function building_lib.register_building(name, def)
 	def.name = name
-	def.placement = def.placement or "default"
+	def.placement = def.placement or "mapblock_lib"
 
 	-- try to validate the building/placement combo
 	local placement = building_lib.get_placement(def.placement)
