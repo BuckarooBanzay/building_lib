@@ -2,7 +2,6 @@
 -- playername => key
 local active_preview = {}
 
-
 local function add_preview_entity(texture, key, visual_size, pos, rotation)
 	local ent = building_lib.add_entity(pos, key)
 	ent:set_properties({
@@ -12,32 +11,15 @@ local function add_preview_entity(texture, key, visual_size, pos, rotation)
 	ent:set_rotation(rotation)
 end
 
-function building_lib.show_preview(playername, add, building_def, mapblock_pos1, mapblock_pos2, rotation)
-
-	local texture, can_build
-
-	if add then
-		can_build = building_lib.can_build(mapblock_pos1, playername, building_def.name, rotation)
-		texture = "building_lib_place.png"
-		if can_build then
-			texture = texture .. "^[colorize:#00ff00"
-		else
-			texture = texture .. "^[colorize:#ffff00"
-		end
-	else
-		-- remove
-		texture = "building_lib_remove.png"
-		local can_remove = building_lib.can_remove(mapblock_pos1)
-        if can_remove then
-            texture = texture .. "^[colorize:#ff0000"
-        else
-            texture = texture .. "^[colorize:#ffff00"
-        end
-	end
-
+function building_lib.show_preview(playername, texture, color, building_def, mapblock_pos1, mapblock_pos2, rotation)
+	texture = texture .. "^[colorize:" .. color
 
 	mapblock_pos2 = mapblock_pos2 or mapblock_pos1
-	local key = minetest.pos_to_string(mapblock_pos1) .. "/" .. minetest.pos_to_string(mapblock_pos2) .. "/" .. texture
+	local key =
+		minetest.pos_to_string(mapblock_pos1) .. "/" ..
+		minetest.pos_to_string(mapblock_pos2) .. "/" ..
+		texture .. "/" ..
+		rotation
 
 	if active_preview[playername] == key then
 		-- already active on the same region
@@ -95,9 +77,9 @@ function building_lib.show_preview(playername, add, building_def, mapblock_pos1,
 		{x=math.pi/2, y=0, z=0}
 	)
 
-	if add and building_def.markers then
+	if building_def and building_def.markers then
 		-- add markers
-		local texture_modifier = can_build and "^[colorize:#00ff00" or "^[colorize:#ffff00"
+		local texture_modifier = "^[colorize:" .. color
 		local unrotated_size = building_lib.get_building_size(building_def, 360 - rotation)
 
 		for _, marker in ipairs(building_def.markers) do

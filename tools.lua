@@ -104,7 +104,21 @@ minetest.register_tool("building_lib:place", {
         local size = building_lib.get_building_size(building_def, rotation)
         local mapblock_pos2 = vector.add(mapblock_pos1, vector.subtract(size, 1))
 
-        building_lib.show_preview(playername, true, building_def, mapblock_pos1, mapblock_pos2, rotation)
+        local color = "#00ff00"
+        local can_build = building_lib.can_build(mapblock_pos1, playername, building_def.name, rotation)
+        if not can_build then
+            color = "#ffff00"
+        end
+
+        building_lib.show_preview(
+            playername,
+            "building_lib_place.png",
+            color,
+            building_def,
+            mapblock_pos1,
+            mapblock_pos2,
+            rotation
+        )
     end,
     on_blur = function(player)
         local playername = player:get_player_name()
@@ -139,7 +153,21 @@ minetest.register_tool("building_lib:remove", {
         local size = building_lib.get_building_size(building_def, building_info.rotation or 0)
         local mapblock_pos2 = vector.add(origin, vector.subtract(size, 1))
 
-        building_lib.show_preview(playername, false, building_def, origin, mapblock_pos2, building_info.rotation)
+        local color = "#ff0000"
+        local can_remove = building_lib.can_remove(origin)
+        if not can_remove then
+            color = "#ffff00"
+        end
+
+        building_lib.show_preview(
+            playername,
+            "building_lib_remove.png",
+            color,
+            building_def,
+            origin,
+            mapblock_pos2,
+            building_info.rotation
+        )
     end,
     on_blur = function(player)
         local playername = player:get_player_name()
