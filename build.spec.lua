@@ -9,6 +9,13 @@ building_lib.register_building("building_lib:dummy", {
 	placement = "dummy"
 })
 
+building_lib.register_building("building_lib:dummy_v2", {
+	placement = "dummy",
+    build_over = {
+        names = {"building_lib:dummy"}
+    }
+})
+
 mtt.register("build", function(callback)
     local mapblock_pos = {x=0, y=0, z=0}
     local building_name = "building_lib:dummy"
@@ -33,6 +40,11 @@ mtt.register("build", function(callback)
     success, err = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
     assert(err)
     assert(not success)
+
+    -- try to build over with v2 building
+    success, err = building_lib.can_build(mapblock_pos, playername, building_name .. "_v2", rotation)
+    assert(not err, err)
+    assert(success)
 
     -- check
     local info = building_lib.get_placed_building_info(mapblock_pos)

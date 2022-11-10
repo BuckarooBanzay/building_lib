@@ -91,6 +91,14 @@ minetest.register_tool("building_lib:place", {
     on_step = function(itemstack, player)
         local playername = player:get_player_name()
         local mapblock_pos1 = building_lib.get_pointed_mapblock(player)
+        local rotation = building_lib.get_build_rotation(player)
+
+        local placed_building_info, placed_building_origin = building_lib.get_placed_building_info(mapblock_pos1)
+        if placed_building_info then
+            -- use origin and rotation of existing pointed-at building
+            mapblock_pos1 = placed_building_origin
+            rotation = placed_building_info.rotation
+        end
 
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
@@ -100,7 +108,6 @@ minetest.register_tool("building_lib:place", {
             return
         end
 
-        local rotation = building_lib.get_build_rotation(player)
         local size = building_lib.get_building_size(building_def, rotation)
         local mapblock_pos2 = vector.add(mapblock_pos1, vector.subtract(size, 1))
 
