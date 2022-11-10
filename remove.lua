@@ -13,7 +13,7 @@ function building_lib.can_remove(mapblock_pos)
     return true
 end
 
-function building_lib.remove(mapblock_pos)
+function building_lib.remove(mapblock_pos, playername)
     local success, err = building_lib.can_remove(mapblock_pos)
     if not success then
         return success ,err
@@ -34,5 +34,6 @@ function building_lib.remove(mapblock_pos)
         end
     end
 
+    building_lib.fire_event("removed", mapblock_pos, playername, building_info)
     return true
 end

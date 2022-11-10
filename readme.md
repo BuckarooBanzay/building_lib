@@ -84,9 +84,18 @@ building_lib.register_condition("on_flat_surface", {
 })
 ```
 
+## Conditions
+
 Built-in conditions:
 * `group=<groupname>` checks if there is already a building with the specified groupname
 * `on_group=<groupname>` checks if there is a building with the specified groupname below
+
+## Events
+
+```lua
+building_lib.register_on("placed", function(mapblock_pos, playername, building_def, rotation) end)
+building_lib.register_on("removed", function(mapblock_pos, playername, building_info) end)
+```
 
 ## Chat commands
 
