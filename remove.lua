@@ -19,8 +19,8 @@ function building_lib.remove(mapblock_pos)
         return success ,err
     end
 
-    local mapblock_data, origin = mapblock_lib.resolve_data_link(building_lib.store, mapblock_pos)
-    local size = mapblock_data.building.size or {x=1, y=1, z=1}
+    local building_info, origin = building_lib.get_placed_building_info(mapblock_pos)
+    local size = building_info.size or {x=1, y=1, z=1}
 
     for x=origin.x,origin.x+size.x-1 do
         for y=origin.y,origin.y+size.y-1 do
