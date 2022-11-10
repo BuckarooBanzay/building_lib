@@ -103,7 +103,7 @@ function building_lib.create_mapgen(opts)
         return mapblock_pos.y == opts.water_level and height <= mapblock_pos.y
     end
 
-    return function(minp, maxp)
+    local function on_generated(minp, maxp)
         local min_mapblock = mapblock_lib.get_mapblock(minp)
         local max_mapblock = mapblock_lib.get_mapblock(maxp)
 
@@ -131,15 +131,15 @@ function building_lib.create_mapgen(opts)
                 -- nothing above, place water building
                 building_lib.build_mapgen(mapblock_pos, biome.buildings.water, 0)
             elseif mapblock_pos.y < height then
-                -- subsurface
-                building_lib.build_mapgen(mapblock_pos, biome.buildings.full, 0)
+                -- underground
+                building_lib.build_mapgen(mapblock_pos, biome.buildings.underground, 0)
             elseif mapblock_pos.y == height then
                 -- surface
 
                 -- check if neighbors are lower
                 local hm = get_height_map(mapblock_pos, height)
 
-                local building_name = biome.buildings.full
+                local building_name = biome.buildings.surface
                 local rotation = 0
 
                 -- normal slopes
@@ -188,7 +188,10 @@ function building_lib.create_mapgen(opts)
         end --z
         end --y
         end --x
-    end, {
+    end
+
+    return {
+        on_generated = on_generated,
         get_height = get_height,
         get_temperature_humidity = get_temperature_humidity,
         get_biome = function(mapblock_pos)
