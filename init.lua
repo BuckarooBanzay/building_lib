@@ -14,6 +14,7 @@ dofile(MP .. "/api.lua")
 dofile(MP .. "/wield_events.lua")
 dofile(MP .. "/common.lua")
 dofile(MP .. "/placements/default.lua")
+dofile(MP .. "/conditions.lua")
 dofile(MP .. "/build.lua")
 dofile(MP .. "/remove.lua")
 dofile(MP .. "/chat.lua")
@@ -21,5 +22,6 @@ dofile(MP .. "/tools.lua")
 dofile(MP .. "/mapgen.lua")
 
 if minetest.get_modpath("mtt") and mtt.enabled then
+	dofile(MP .. "/conditions.spec.lua")
 	dofile(MP .. "/build.spec.lua")
 end
