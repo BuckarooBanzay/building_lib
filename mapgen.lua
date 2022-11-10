@@ -130,7 +130,7 @@ function building_lib.create_mapgen(opts)
             if is_water(mapblock_pos) then
                 -- nothing above, place water building
                 building_lib.build_mapgen(mapblock_pos, biome.buildings.water, 0)
-            elseif mapblock_pos.y < height then
+            elseif mapblock_pos.y < height or mapblock_pos.y < opts.water_level then
                 -- underground
                 building_lib.build_mapgen(mapblock_pos, biome.buildings.underground, 0)
             elseif mapblock_pos.y == height then
