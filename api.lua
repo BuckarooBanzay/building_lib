@@ -19,6 +19,13 @@ function building_lib.register_building(name, def)
 	buildings[name] = def
 end
 
+function building_lib.register_alias(alias, original_name)
+	-- copy original and re-add to building-table
+	local building_def = table.copy(original_name)
+	building_def.alias = true
+	buildings[alias] = building_def
+end
+
 function building_lib.get_building(name)
     return buildings[name]
 end
