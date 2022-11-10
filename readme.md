@@ -93,7 +93,8 @@ Built-in conditions:
 ## Events
 
 ```lua
-building_lib.register_on("placed", function(mapblock_pos, playername, building_def, rotation) end)
+building_lib.register_on("placed", function(mapblock_pos, playername, building_def, rotation, size) end)
+building_lib.register_on("placed_mapgen", function(mapblock_pos, building_def, rotation) end)
 building_lib.register_on("removed", function(mapblock_pos, playername, building_info) end)
 ```
 

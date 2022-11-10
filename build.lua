@@ -151,7 +151,7 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation, c
 	end)
 
 	placement.place(placement, mapblock_pos, building_def, rotation, callback)
-	building_lib.fire_event("placed", mapblock_pos, playername, building_def, rotation)
+	building_lib.fire_event("placed", mapblock_pos, playername, building_def, rotation, size)
 	return true
 end
 
@@ -169,4 +169,5 @@ function building_lib.build_mapgen(mapblock_pos, building_name, rotation)
 	})
 
 	placement.place(placement, mapblock_pos, building_def, rotation)
+	building_lib.fire_event("placed_mapgen", mapblock_pos, building_def, rotation)
 end
