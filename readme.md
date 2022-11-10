@@ -84,6 +84,10 @@ building_lib.register_condition("on_flat_surface", {
 })
 ```
 
+Built-in conditions:
+* `group=<groupname>` checks if there is already a building with the specified groupname
+* `on_group=<groupname>` checks if there is a building with the specified groupname below
+
 ## Chat commands
 
 * `/building_info`

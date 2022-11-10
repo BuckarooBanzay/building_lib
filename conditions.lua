@@ -60,3 +60,32 @@ function building_lib.check_conditions(mapblock_pos, conditions, building_def)
 
 	return true
 end
+
+-- checks if a building with specified group is placed there already
+building_lib.register_condition("group", {
+    can_build = function(mapblock_pos, _, value)
+		local building_info = building_lib.get_placed_building_info(mapblock_pos)
+		if building_info then
+			local building_def = building_lib.get_building(building_info.name)
+			if building_def and building_def.groups[value] then
+				return true
+			end
+		end
+		return false
+	end
+})
+
+-- checks if a building with specified group is placed there below
+building_lib.register_condition("on_group", {
+    can_build = function(mapblock_pos, _, value)
+		local below_mapblock_pos = vector.subtract(mapblock_pos, {x=0, y=1, =1})
+		local building_info = building_lib.get_placed_building_info(below_mapblock_pos)
+		if building_info then
+			local building_def = building_lib.get_building(building_info.name)
+			if building_def and building_def.groups[value] then
+				return true
+			end
+		end
+		return false
+	end
+})
