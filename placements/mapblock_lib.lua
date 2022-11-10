@@ -53,6 +53,7 @@ building_lib.register_placement("mapblock_lib", {
 			end
 
 			local place_fn = catalog:prepare(catalog_pos, {
+				on_metadata = building_def.on_metadata,
 				transform = {
 					rotate = {
 						axis = "y",
