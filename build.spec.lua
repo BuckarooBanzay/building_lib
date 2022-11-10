@@ -1,12 +1,4 @@
 
-building_lib.register_condition("success", {
-    can_build = function() return true end
-})
-
-building_lib.register_condition("failure", {
-    can_build = function() return false, "no success" end
-})
-
 building_lib.register_placement("dummy", {
     check = function() return true end,
     get_size = function() return {x=1,y=1,z=1} end,

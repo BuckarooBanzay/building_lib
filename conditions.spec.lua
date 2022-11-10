@@ -1,4 +1,12 @@
 
+building_lib.register_condition("success", {
+    can_build = function() return true end
+})
+
+building_lib.register_condition("failure", {
+    can_build = function() return false, "no success" end
+})
+
 local function run_conditions(conditions)
     local mapblock_pos = {x = 0, y = 0, z = 0}
     return building_lib.check_conditions(mapblock_pos, conditions, {
