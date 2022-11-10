@@ -111,7 +111,7 @@ function building_lib.can_build(mapblock_pos, _, building_name, rotation)
 	return true
 end
 
-function building_lib.do_build(mapblock_pos, playername, building_name, rotation, callback)
+function building_lib.build(mapblock_pos, playername, building_name, rotation, callback)
 	callback = callback or function() end
 	rotation = rotation or 0
 
@@ -153,7 +153,7 @@ function building_lib.do_build(mapblock_pos, playername, building_name, rotation
 end
 
 -- mapgen build shortcut, only for 1x1x1 sized buildings
-function building_lib.do_build_mapgen(mapblock_pos, building_name, rotation)
+function building_lib.build_mapgen(mapblock_pos, building_name, rotation)
 	local building_def = building_lib.get_building(building_name)
 	local placement = building_lib.get_placement(building_def.placement)
 

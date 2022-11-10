@@ -22,7 +22,7 @@ mtt.register("build", function(callback)
 
     -- build
     local callback_called = false
-    success, err = building_lib.do_build(mapblock_pos, playername, building_name, rotation,
+    success, err = building_lib.build(mapblock_pos, playername, building_name, rotation,
         function() callback_called = true end
     )
     assert(not err)
@@ -49,7 +49,7 @@ mtt.register("build", function(callback)
     assert(success)
 
     -- remove
-    success, err = building_lib.do_remove(mapblock_pos)
+    success, err = building_lib.remove(mapblock_pos)
     assert(not err)
     assert(success)
 

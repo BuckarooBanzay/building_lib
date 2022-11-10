@@ -8,13 +8,13 @@
 local success, message = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
 
 -- build it there
-local success, message = building_lib.do_build(mapblock_pos, playername, building_name, rotation, callback)
+local success, message = building_lib.build(mapblock_pos, playername, building_name, rotation, callback)
 
 -- check if it can be removed
 local success, message = building_lib.can_remove(mapblock_pos)
 
 -- remove it
-local success, message = building_lib.do_remove(mapblock_pos)
+local success, message = building_lib.remove(mapblock_pos)
 
 -- registers a placeable building
 building_lib.register_building("buildings:my_building", {

@@ -129,10 +129,10 @@ function building_lib.create_mapgen(opts)
 
             if is_water(mapblock_pos) then
                 -- nothing above, place water building
-                building_lib.do_build_mapgen(mapblock_pos, biome.buildings.water, 0)
+                building_lib.build_mapgen(mapblock_pos, biome.buildings.water, 0)
             elseif mapblock_pos.y < height then
                 -- subsurface
-                building_lib.do_build_mapgen(mapblock_pos, biome.buildings.full, 0)
+                building_lib.build_mapgen(mapblock_pos, biome.buildings.full, 0)
             elseif mapblock_pos.y == height then
                 -- surface
 
@@ -183,7 +183,7 @@ function building_lib.create_mapgen(opts)
                     rotation = 0
                 end
 
-                building_lib.do_build_mapgen(mapblock_pos, building_name, rotation)
+                building_lib.build_mapgen(mapblock_pos, building_name, rotation)
             end
         end --z
         end --y

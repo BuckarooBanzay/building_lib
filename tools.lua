@@ -83,7 +83,7 @@ minetest.register_tool("building_lib:place", {
         local buildingname = meta:get_string("buildingname")
         local pointed_mapblock_pos = building_lib.get_pointed_mapblock(player)
         local rotation = building_lib.get_build_rotation(player)
-        local success, err = building_lib.do_build(pointed_mapblock_pos, playername, buildingname, rotation)
+        local success, err = building_lib.build(pointed_mapblock_pos, playername, buildingname, rotation)
         if not success then
             minetest.chat_send_player(playername, err)
         end
@@ -119,7 +119,7 @@ minetest.register_tool("building_lib:remove", {
     range = 0,
     on_use = function(_, player)
         local mapblock_pos = building_lib.get_pointed_mapblock(player)
-        local success, err = building_lib.do_remove(mapblock_pos)
+        local success, err = building_lib.remove(mapblock_pos)
         if not success then
             minetest.chat_send_player(player:get_player_name(), err)
         end
