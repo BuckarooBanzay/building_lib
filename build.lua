@@ -53,9 +53,9 @@ function building_lib.can_build(mapblock_pos, _, building_name, rotation)
 			end
 
 			local matches = false
-			if building_def.build_over.groups then
+			if building_def.build_over.groups and other_building_def.groups then
 				for _, group in ipairs(building_def.build_over.groups) do
-					if other_building_def[group] then
+					if other_building_def.groups[group] then
 						matches = true
 						break
 					end
@@ -71,10 +71,7 @@ function building_lib.can_build(mapblock_pos, _, building_name, rotation)
 				end
 			end
 
-			if not matches then
-				-- can't build over pointed building
-				return false, "Existing building can't be built over"
-			else
+			if matches then
 				build_over_mode = true
 			end
 		end
