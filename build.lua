@@ -35,76 +35,12 @@ function building_lib.can_build(mapblock_pos, _, building_name, rotation)
 		return false, message or "size check '" .. building_def.placement .. "' failed"
 	end
 
-	-- true if the existing building can be built over
-	local build_over_mode = false
+	local mapblock_pos2 = vector.add(mapblock_pos, vector.subtract(size, 1))
 
-	-- check if we can build over other buildings
-	if building_def.build_over then
-		local other_building_info, origin = building_lib.get_placed_building_info(mapblock_pos)
-		if other_building_info then
-			-- other building exists, check if it matches
-			if not vector.equals(origin, mapblock_pos) then
-				return false, "Placement-origin mismatch"
-			end
-
-			local other_building_def = building_lib.get_building(other_building_info.name)
-			if not other_building_def then
-				return false, "Unknown building"
-			end
-
-			local matches = false
-			if building_def.build_over.groups and other_building_def.groups then
-				for _, group in ipairs(building_def.build_over.groups) do
-					if other_building_def.groups[group] then
-						matches = true
-						break
-					end
-				end
-			end
-
-			if not matches and building_def.build_over.names then
-				for _, name in ipairs(building_def.build_over.names) do
-					if name == other_building_def.name then
-						matches = true
-						break
-					end
-				end
-			end
-
-			if matches then
-				build_over_mode = true
-			end
-		end
-	end
-
-	local it = mapblock_lib.pos_iterator(mapblock_pos, vector.add(mapblock_pos, vector.subtract(size, 1)))
-	while true do
-		local offset_mapblock_pos = it()
-		if not offset_mapblock_pos then
-			break
-		end
-
-		if not build_over_mode then
-			-- check if the area is free
-			local is_free = check_free(offset_mapblock_pos)
-			if not is_free then
-				return false, "Space already occupied at " .. minetest.pos_to_string(offset_mapblock_pos)
-			end
-		end
-
-		local success
-		if offset_mapblock_pos.y == mapblock_pos.y then
-			-- check ground conditions
-			success, message = building_lib.check_conditions(offset_mapblock_pos, building_def.ground_conditions, building_def)
-			if not success then
-				return false, message
-			end
-		end
-
-		success, message = building_lib.check_conditions(offset_mapblock_pos, building_def.conditions, building_def)
-		if not success then
-			return false, message
-		end
+	local success
+	success, message = building_lib.check_conditions(mapblock_pos, mapblock_pos2, building_def)
+	if not success then
+		return false, message
 	end
 
 	-- all checks ok

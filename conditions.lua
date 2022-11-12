@@ -1,4 +1,5 @@
 
+-- checks a single condition
 local function check_condition(key, value, mapblock_pos, building_def)
 	local condition = building_lib.get_condition(key)
 	if condition and type(condition.can_build) == "function" then
@@ -7,58 +8,65 @@ local function check_condition(key, value, mapblock_pos, building_def)
 	return true
 end
 
-local function check_map(mode, map, mapblock_pos, building_def)
-	local placement_allowed = false
-	local error_msg
-
+-- checks a table of conditions with the given mapblock_pos
+-- all entries have to match
+local function check_table(map, mapblock_pos, building_def)
 	for key, value in pairs(map) do
 		local success, msg = check_condition(key, value, mapblock_pos, building_def)
-		if success then
-			-- success
-			placement_allowed = true
-		elseif mode == "and" then
+		if not success then
 			-- failure and in AND mode, return immediately
 			return false, msg or "condition failed: '" .. key .. "'"
-		else
-			error_msg = msg or "condition failed: '" .. key .. "'"
 		end
 	end
-
-	return placement_allowed, error_msg
+	return true
 end
 
-function building_lib.check_conditions(mapblock_pos, conditions, building_def)
-	-- go through conditions
-	if conditions then
-		-- array-like AND/OR def support
-		if conditions[1] then
-			-- OR'ed array
-			local placement_allowed = false
-			local error_msg
+local default_conditions = {
+	{["*"] = { empty = true }}
+}
 
-			for _, entry in ipairs(conditions) do
-				local success, msg = check_map("and", entry, mapblock_pos, building_def)
-				if success then
-					placement_allowed = true
-					break
+function building_lib.check_conditions(mapblock_pos1, mapblock_pos2, building_def)
+	for _, condition_group in ipairs(building_def.conditions or default_conditions) do
+		for selector, conditions in pairs(condition_group) do
+			local it
+			if selector == "*" then
+				-- match all
+				it = mapblock_lib.pos_iterator(mapblock_pos1, mapblock_pos2)
+			elseif selector == "base" then
+				-- match only base positions
+				it = mapblock_lib.pos_iterator(mapblock_pos1, {x=mapblock_pos2.x, y=mapblock_pos1.y, z=mapblock_pos2.z})
+			else
+				-- try to parse a manual position
+				local pos = minetest.string_to_pos(selector)
+				if pos then
+					-- single position
+					it = mapblock_lib.pos_iterator(pos, pos)
 				else
-					error_msg = msg
+					return false, "unknown selector: " .. selector
 				end
 			end
 
-			if not placement_allowed then
-				return false, error_msg or "<unknown>"
+			local all_match = true
+			while true do
+				local mapblock_pos = it()
+				if not mapblock_pos then
+					break
+				end
+
+				local success = check_table(conditions, mapblock_pos, building_def)
+				if not success then
+					all_match = false
+					break
+				end
 			end
-		else
-			-- map
-			local success, error_msg = check_map("or", conditions, mapblock_pos, building_def)
-			if not success then
-				return false, error_msg or "<unknown>"
+
+			if all_match then
+				return true
 			end
 		end
 	end
 
-	return true
+	return false, "no matching condition found"
 end
 
 -- checks if a building with specified group is placed there already
@@ -75,17 +83,10 @@ building_lib.register_condition("group", {
 	end
 })
 
--- checks if a building with specified group is placed there below
-building_lib.register_condition("on_group", {
-    can_build = function(mapblock_pos, _, value)
-		local below_mapblock_pos = vector.subtract(mapblock_pos, {x=0, y=1, z=1})
-		local building_info = building_lib.get_placed_building_info(below_mapblock_pos)
-		if building_info then
-			local building_def = building_lib.get_building(building_info.name)
-			if building_def and building_def.groups and building_def.groups[value] then
-				return true
-			end
-		end
-		return false
+-- checks if the mapblock position is empty
+building_lib.register_condition("empty", {
+    can_build = function(mapblock_pos)
+		local building_info = building_lib.get_placed_building_info(mapblock_pos)
+		return building_info == nil
 	end
 })

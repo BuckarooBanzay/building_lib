@@ -20,12 +20,7 @@ local success, message = building_lib.remove(mapblock_pos)
 building_lib.register_building("buildings:my_building", {
 	placement = "mapblock_lib",
 	conditions = {
-		-- OR
-		on_flat_surface = true,
-		on_slope = true,
-		-- alternatively: OR and AND combined
-		{ on_slope = true, on_biome = "grass" },
-		{ on_flat_surface = true, on_biome = "water" },
+		{["*"] = { empty = true }}
 	},
 	-- simple catalog
 	catalog = "my.zip",
@@ -53,13 +48,6 @@ building_lib.register_building("buildings:my_building", {
 			["old_mod:node"] = "new_mod:node"
 		}
 	end,
-	-- build-over config
-	build_over = {
-		-- by group
-		groups = {"my_group"},
-		-- by name
-		names = {"other_building:name"}
-	}
 })
 
 -- registers a placement type (connected, simple, etc)
