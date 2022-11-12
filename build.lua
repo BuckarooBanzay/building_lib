@@ -1,12 +1,4 @@
 
-local function check_free(mapblock_pos)
-	if building_lib.get_placed_building_info(mapblock_pos) then
-		return false
-	else
-		return true
-	end
-end
-
 local function apply_rotation_offset(building_def, rotation)
 	if building_def.rotation_offset then
 		rotation = rotation + building_def.rotation_offset
