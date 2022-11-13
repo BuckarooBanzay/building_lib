@@ -27,6 +27,8 @@ local default_conditions = {
 
 function building_lib.check_conditions(mapblock_pos1, mapblock_pos2, building_def)
 	for _, condition_group in ipairs(building_def.conditions or default_conditions) do
+		local group_match = true
+
 		for selector, conditions in pairs(condition_group) do
 			local it
 			if selector == "*" then
@@ -53,7 +55,6 @@ function building_lib.check_conditions(mapblock_pos1, mapblock_pos2, building_de
 				end
 			end
 
-			local all_match = true
 			while true do
 				local mapblock_pos = it()
 				if not mapblock_pos then
@@ -62,14 +63,18 @@ function building_lib.check_conditions(mapblock_pos1, mapblock_pos2, building_de
 
 				local success = check_table(conditions, mapblock_pos, building_def)
 				if not success then
-					all_match = false
+					group_match = false
 					break
 				end
 			end
 
-			if all_match then
-				return true
+			if not group_match then
+				break
 			end
+		end
+
+		if group_match then
+			return true
 		end
 	end
 
