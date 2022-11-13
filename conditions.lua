@@ -82,7 +82,7 @@ building_lib.register_condition("group", {
 		local building_info = building_lib.get_placed_building_info(mapblock_pos)
 		if building_info then
 			local building_def = building_lib.get_building(building_info.name)
-			if building_def and building_def.groups[value] then
+			if building_def and building_def.groups and building_def.groups[value] then
 				return true
 			end
 		end
