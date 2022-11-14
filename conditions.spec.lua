@@ -13,19 +13,15 @@ local test_map = {
 }
 
 building_lib.register_condition("test_map", {
-    can_build = function(mapblock_pos, _, flag_value)
+    can_build = function(mapblock_pos, flag_value)
         return test_map[minetest.pos_to_string(mapblock_pos)] == flag_value
     end
 })
 
-local function run_conditions(conditions)
+local function run_conditions(condition_groups)
     local mapblock_pos1 = {x = 0, y = 0, z = 0}
     local mapblock_pos2 = vector.add(mapblock_pos1, 2)
-    return building_lib.check_conditions(mapblock_pos1, mapblock_pos2, {
-        name = "something:test1",
-        placement = "dummy",
-        conditions = conditions
-    })
+    return building_lib.check_condition_groups(mapblock_pos1, mapblock_pos2, condition_groups)
 end
 
 mtt.register("check_conditions", function(callback)

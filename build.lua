@@ -30,7 +30,7 @@ function building_lib.can_build(mapblock_pos, _, building_name, rotation)
 	local mapblock_pos2 = vector.add(mapblock_pos, vector.subtract(size, 1))
 
 	local success
-	success, message = building_lib.check_conditions(mapblock_pos, mapblock_pos2, building_def)
+	success, message = building_lib.check_condition_groups(mapblock_pos, mapblock_pos2, building_def.conditions)
 	if not success then
 		return false, message
 	end

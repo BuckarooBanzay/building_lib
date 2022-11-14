@@ -57,3 +57,20 @@ end
 function building_lib.get_condition(name)
     return conditions[name]
 end
+
+-- name -> autoplace_def
+local autoplacers = {}
+
+function building_lib.register_autoplacer(name, def)
+	assert(type(def.buildings) == "table")
+	def.name = name
+	autoplacers[name] = def
+end
+
+function building_lib.get_autoplacers()
+	return autoplacers
+end
+
+function building_lib.get_autoplacer(name)
+	return autoplacers[name]
+end

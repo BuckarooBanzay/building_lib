@@ -66,7 +66,7 @@ building_lib.register_placement("simple", {
 
 -- registers a condition that checks for certain world conditions
 building_lib.register_condition("on_flat_surface", {
-    can_build = function(mapblock_pos, building_def, flag_value)
+    can_build = function(mapblock_pos, flag_value)
 		return false, msg
     end
 })
