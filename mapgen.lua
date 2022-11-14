@@ -7,6 +7,7 @@ local function select_biome(biomes, temperature, humidity)
         local score = math.abs(temperature - biome.temperature) + math.abs(humidity - biome.humidity)
         if not selected_biome or score > selected_score then
             selected_biome = biome
+            selected_score = score
         end
     end
 
