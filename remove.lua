@@ -34,6 +34,6 @@ function building_lib.remove(mapblock_pos, playername)
         end
     end
 
-    building_lib.fire_event("removed", mapblock_pos, playername, building_info)
+    building_lib.fire_event("removed", origin, playername, building_info)
     return true
 end
