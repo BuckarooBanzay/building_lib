@@ -71,7 +71,10 @@ building_lib.register_placement("mapblock_lib", {
 				building_def._cache[rotation] = place_fn
 			end
 
-			place_fn(world_pos)
+			if place_fn then
+				-- only place if possible (mapblock found in catalog)
+				place_fn(world_pos)
+			end
 			minetest.after(0, worker)
 		end
 
