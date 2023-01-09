@@ -115,12 +115,9 @@ end
 -- checks if a building with specified group is placed there already
 building_lib.register_condition("group", {
     can_build = function(mapblock_pos, value)
-		local building_info = building_lib.get_placed_building_info(mapblock_pos)
-		if building_info then
-			local building_def = building_lib.get_building(building_info.name)
-			if building_def and building_def.groups and building_def.groups[value] then
-				return true
-			end
+		local building_def = building_lib.get_building_def_at(mapblock_pos)
+		if building_def and building_def.groups and building_def.groups[value] then
+			return true
 		end
 		return false
 	end
