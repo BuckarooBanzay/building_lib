@@ -28,6 +28,7 @@ dofile(MP .. "/hacks.lua")
 dofile(MP .. "/mapgen.lua")
 
 if minetest.get_modpath("mtt") and mtt.enabled then
+	dofile(MP .. "/mtt.lua")
 	dofile(MP .. "/events.spec.lua")
 	dofile(MP .. "/conditions.spec.lua")
 	dofile(MP .. "/build.spec.lua")
