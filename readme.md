@@ -10,6 +10,13 @@ local success, message = building_lib.can_build(mapblock_pos, playername, buildi
 -- build it there
 local success, message = building_lib.build(mapblock_pos, playername, building_name, rotation, callback)
 
+-- check if it can be replaced
+-- NOTE: conditions are not checked on replace, just the size
+local success, err = building_lib.can_replace(mapblock_pos, playername, new_building_name)
+
+-- replace with a building of the same size
+local success, err = building_lib.replace(mapblock_pos, playername, new_building_name, callback)
+
 -- check if it can be removed
 local success, message = building_lib.can_remove(mapblock_pos)
 

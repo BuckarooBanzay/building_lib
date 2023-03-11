@@ -10,6 +10,7 @@ building_lib.register_building("building_lib:dummy_v2", {
 mtt.register("build", function(callback)
     local mapblock_pos = {x=0, y=0, z=0}
     local building_name = "building_lib:dummy"
+    local new_building_name = "building_lib:dummy_v2"
     local rotation = 0
     local playername = "singleplayer"
 
@@ -40,6 +41,20 @@ mtt.register("build", function(callback)
     assert(info.size.x == 1)
     assert(info.size.y == 1)
     assert(info.size.z == 1)
+
+    -- try to replace
+    success, err = building_lib.can_replace(mapblock_pos, playername, new_building_name)
+    assert(not err)
+    assert(success)
+
+    -- replace
+    callback_called = false
+    success, err = building_lib.replace(mapblock_pos, playername, new_building_name, function()
+        callback_called = true
+    end)
+    assert(not err)
+    assert(success)
+    assert(callback_called)
 
     -- try to remove
     success, err = building_lib.can_remove(mapblock_pos)
