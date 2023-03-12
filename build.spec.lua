@@ -14,6 +14,9 @@ building_lib.register_building("building_lib:dummy_v2", {
 })
 
 mtt.register("build", function(callback)
+    -- clear store
+    building_lib.store:clear()
+
     local mapblock_pos = {x=0, y=0, z=0}
     local building_name = "building_lib:dummy"
     local rotation = 0
@@ -74,6 +77,34 @@ mtt.register("build", function(callback)
     -- check
     info = building_lib.get_placed_building_info(mapblock_pos)
     assert(info == nil)
+
+    callback()
+end)
+
+mtt.benchmark("build", function(callback, iterations)
+    -- clear store
+    building_lib.store:clear()
+
+    local mapblock_pos = {x=0, y=0, z=0}
+    local building_name = "building_lib:dummy"
+    local rotation = 0
+    local playername = "singleplayer"
+
+    for _=1,iterations do
+        -- build
+        local callback_called = false
+        local success, err = building_lib.build(mapblock_pos, playername, building_name, rotation,
+            function() callback_called = true end
+        )
+        assert(not err)
+        assert(success)
+        assert(callback_called)
+
+        -- remove
+        success, err = building_lib.remove(mapblock_pos)
+        assert(not err)
+        assert(success)
+    end
 
     callback()
 end)
