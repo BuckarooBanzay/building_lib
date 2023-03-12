@@ -3,8 +3,14 @@ building_lib.register_building("building_lib:dummy", {
 	placement = "dummy"
 })
 
+-- building can only be placed over "dummy"
 building_lib.register_building("building_lib:dummy_v2", {
 	placement = "dummy",
+    conditions = {
+        {
+            ["*"] = { name = "building_lib:dummy" }
+        }
+    }
 })
 
 mtt.register("build", function(callback)
@@ -40,6 +46,20 @@ mtt.register("build", function(callback)
     assert(info.size.x == 1)
     assert(info.size.y == 1)
     assert(info.size.z == 1)
+
+    -- try to build over
+    success, err = building_lib.can_build(mapblock_pos, playername, "building_lib:dummy_v2", rotation)
+    assert(not err)
+    assert(success)
+
+    -- build over
+    callback_called = false
+    success, err = building_lib.build(mapblock_pos, playername, "building_lib:dummy_v2", rotation,
+        function() callback_called = true end
+    )
+    assert(not err)
+    assert(success)
+    assert(callback_called)
 
     -- try to remove
     success, err = building_lib.can_remove(mapblock_pos)
