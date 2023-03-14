@@ -32,4 +32,5 @@ if minetest.get_modpath("mtt") and mtt.enabled then
 	dofile(MP .. "/events.spec.lua")
 	dofile(MP .. "/conditions.spec.lua")
 	dofile(MP .. "/build.spec.lua")
+	dofile(MP .. "/build_over.spec.lua")
 end

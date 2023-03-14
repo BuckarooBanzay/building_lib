@@ -15,7 +15,7 @@ function building_lib.check_condition_table(map, mapblock_pos)
 		local success, msg = check_condition(key, value, mapblock_pos)
 		if not success then
 			-- failure and in AND mode, return immediately
-			return false, msg or "condition failed: '" .. key .. "'"
+			return false, msg or "condition failed: '" .. key .. "' pos: " .. minetest.pos_to_string(mapblock_pos)
 		end
 	end
 	return true
@@ -50,17 +50,19 @@ end
 
 -- go through all condition groups and return true if any of them matches
 function building_lib.check_condition_groups(mapblock_pos1, mapblock_pos2, condition_groups)
+	local success, err
 	for _, condition_group in ipairs(condition_groups or default_condition_groups) do
-		local success = building_lib.check_condition_group(mapblock_pos1, mapblock_pos2, condition_group)
+		success, err = building_lib.check_condition_group(mapblock_pos1, mapblock_pos2, condition_group)
 		if success then
 			return true
 		end
 	end
-	return false, "no matching condition found"
+	return false, "no matching condition found" .. (err and ", last error: " .. err or "")
 end
 
 function building_lib.check_condition_group(mapblock_pos1, mapblock_pos2, condition_group)
 	local group_match = true
+	local success, err
 
 	for selector, conditions in pairs(condition_group) do
 		local it
@@ -95,7 +97,7 @@ function building_lib.check_condition_group(mapblock_pos1, mapblock_pos2, condit
 				break
 			end
 
-			local success = building_lib.check_condition_table(conditions, mapblock_pos)
+			success, err = building_lib.check_condition_table(conditions, mapblock_pos)
 			if not success then
 				group_match = false
 				break
@@ -110,6 +112,8 @@ function building_lib.check_condition_group(mapblock_pos1, mapblock_pos2, condit
 	if group_match then
 		return true
 	end
+
+	return false, err
 end
 
 -- checks if a building with specified group is placed there already
