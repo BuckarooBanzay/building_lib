@@ -81,11 +81,19 @@ minetest.register_tool("building_lib:place", {
         minetest.show_formspec(player:get_player_name(), formname, get_formspec(itemstack))
     end,
     on_use = function(itemstack, player)
-        local meta = itemstack:get_meta()
         local playername = player:get_player_name()
-        local buildingname = meta:get_string("buildingname")
         local pointed_mapblock_pos = building_lib.get_pointed_mapblock(player)
         local rotation = building_lib.get_build_rotation(player)
+
+        local placed_building_info, placed_building_origin = building_lib.get_placed_building_info(pointed_mapblock_pos)
+        if placed_building_info then
+            -- use origin and rotation of existing pointed-at building
+            pointed_mapblock_pos = placed_building_origin
+            rotation = placed_building_info.rotation
+        end
+
+        local meta = itemstack:get_meta()
+        local buildingname = meta:get_string("buildingname")
         local success, err = building_lib.build(pointed_mapblock_pos, playername, buildingname, rotation)
         if not success then
             minetest.chat_send_player(playername, err)
@@ -93,13 +101,13 @@ minetest.register_tool("building_lib:place", {
     end,
     on_step = function(itemstack, player)
         local playername = player:get_player_name()
-        local mapblock_pos1 = building_lib.get_pointed_mapblock(player)
+        local pointed_mapblock_pos = building_lib.get_pointed_mapblock(player)
         local rotation = building_lib.get_build_rotation(player)
 
-        local placed_building_info, placed_building_origin = building_lib.get_placed_building_info(mapblock_pos1)
+        local placed_building_info, placed_building_origin = building_lib.get_placed_building_info(pointed_mapblock_pos)
         if placed_building_info then
             -- use origin and rotation of existing pointed-at building
-            mapblock_pos1 = placed_building_origin
+            pointed_mapblock_pos = placed_building_origin
             rotation = placed_building_info.rotation
         end
 
@@ -112,10 +120,10 @@ minetest.register_tool("building_lib:place", {
         end
 
         local size = building_lib.get_building_size(building_def, rotation)
-        local mapblock_pos2 = vector.add(mapblock_pos1, vector.subtract(size, 1))
+        local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
 
         local color = "#00ff00"
-        local can_build = building_lib.can_build(mapblock_pos1, playername, building_def.name, rotation)
+        local can_build = building_lib.can_build(pointed_mapblock_pos, playername, building_def.name, rotation)
         if not can_build then
             color = "#ffff00"
         end
@@ -125,7 +133,7 @@ minetest.register_tool("building_lib:place", {
             "building_lib_place.png",
             color,
             building_def,
-            mapblock_pos1,
+            pointed_mapblock_pos,
             mapblock_pos2,
             rotation
         )
