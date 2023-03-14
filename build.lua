@@ -58,7 +58,7 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation, c
 	local size = placement.get_size(placement, mapblock_pos, building_def, rotation)
 
 	-- fetch current building-def, if any
-	local old_building_def = building_lib.get_building_def_at(mapblock_pos)
+	local old_building_info = building_lib.get_placed_building_info(mapblock_pos)
 
 	-- write new data
 	mapblock_lib.for_each(mapblock_pos, vector.add(mapblock_pos, vector.subtract(size, 1)), function(offset_mapblock_pos)
@@ -80,9 +80,13 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation, c
 
 	placement.place(placement, mapblock_pos, building_def, rotation, function()
 		callback()
-		if old_building_def then
+		if old_building_info then
 			-- replacement
-			building_lib.fire_event("replaced", mapblock_pos, playername, old_building_def, building_def, rotation, size)
+			local old_building_def = building_lib.get_building(old_building_info.name)
+			building_lib.fire_event("replaced", mapblock_pos, playername,
+				old_building_def, old_building_info.rotation, old_building_info.size,
+				building_def, rotation, size
+			)
 		else
 			-- new build
 			building_lib.fire_event("placed", mapblock_pos, playername, building_def, rotation, size)
