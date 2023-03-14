@@ -72,12 +72,19 @@ function building_lib.check_condition_group(mapblock_pos1, mapblock_pos2, condit
 		elseif selector == "base" then
 			-- match only base positions
 			it = mapblock_lib.pos_iterator(mapblock_pos1, {x=mapblock_pos2.x, y=mapblock_pos1.y, z=mapblock_pos2.z})
-		elseif selector == "underground" then
+		elseif selector == "underground" or selector == "below" then
 			-- match only underground positions
 			it = mapblock_lib.pos_iterator({
 				x=mapblock_pos1.x, y=mapblock_pos1.y-1, z=mapblock_pos1.z
 			},{
 				x=mapblock_pos2.x, y=mapblock_pos1.y-1, z=mapblock_pos2.z
+			})
+		elseif selector == "above" then
+			-- match only above positions
+			it = mapblock_lib.pos_iterator({
+				x=mapblock_pos1.x, y=mapblock_pos1.y+1, z=mapblock_pos1.z
+			},{
+				x=mapblock_pos2.x, y=mapblock_pos1.y+1, z=mapblock_pos2.z
 			})
 		else
 			-- try to parse a manual position

@@ -20,7 +20,12 @@ local success, message = building_lib.remove(mapblock_pos)
 building_lib.register_building("buildings:my_building", {
 	placement = "mapblock_lib",
 	conditions = {
+		-- can only be placed if the whole area is empty
 		{["*"] = { empty = true }}
+	},
+	remove_conditions = {
+		-- can only be removed if nothing is built above
+		{["above"] = { empty = true }}
 	},
 	-- simple catalog
 	catalog = "my.zip",

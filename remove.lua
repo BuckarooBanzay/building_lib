@@ -1,13 +1,25 @@
 
 function building_lib.can_remove(mapblock_pos)
-    local mapblock_data = mapblock_lib.resolve_data_link(building_lib.store, mapblock_pos)
-    if not mapblock_data or not mapblock_data.building then
+    local building_info, origin = building_lib.get_placed_building_info(mapblock_pos)
+    if not building_info then
         return false, "no building found"
     end
 
-    local building_def = building_lib.get_building(mapblock_data.building.name)
+    local building_def = building_lib.get_building(building_info.name)
     if not building_def then
         return false, "unknown building"
+    end
+
+    if building_def.remove_conditions then
+        -- check removal conditions
+        local size = building_info.size or {x=1, y=1, z=1}
+        local mapblock_pos2 = vector.add(origin, vector.subtract(size, 1))
+        local success, message = building_lib.check_condition_groups(
+            origin, mapblock_pos2, building_def.remove_conditions
+        )
+        if not success then
+            return false, message
+        end
     end
 
     return true
