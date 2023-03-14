@@ -82,7 +82,7 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation, c
 		callback()
 		if old_building_def then
 			-- replacement
-			building_lib.fire_event("placed_over", mapblock_pos, playername, old_building_def, building_def, rotation, size)
+			building_lib.fire_event("replaced", mapblock_pos, playername, old_building_def, building_def, rotation, size)
 		else
 			-- new build
 			building_lib.fire_event("placed", mapblock_pos, playername, building_def, rotation, size)
