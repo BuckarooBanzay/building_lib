@@ -98,12 +98,7 @@ function building_lib.check_condition_group(mapblock_pos1, mapblock_pos2, condit
 			end
 		end
 
-		while true do
-			local mapblock_pos = it()
-			if not mapblock_pos then
-				break
-			end
-
+		for mapblock_pos in it do
 			success, err = building_lib.check_condition_table(conditions, mapblock_pos)
 			if not success then
 				group_match = false

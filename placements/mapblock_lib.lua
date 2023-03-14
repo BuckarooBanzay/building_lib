@@ -33,8 +33,7 @@ building_lib.register_placement("mapblock_lib", {
 
 		local iterator = mapblock_lib.pos_iterator(catalog_pos1, catalog_pos2)
 
-		local worker
-		worker = function()
+		local function worker()
 			local catalog_pos = iterator()
 			if not catalog_pos then
 				return callback()
