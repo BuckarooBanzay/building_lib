@@ -33,6 +33,12 @@ building_lib.register_placement("mapblock_lib", {
 
 		local iterator = mapblock_lib.pos_iterator(catalog_pos1, catalog_pos2)
 
+		-- get or calculate replacements
+		local replace = building_def.replace
+		if type(building_def.replace) == "function" then
+			replace = building_def.replace(mapblock_pos, building_def)
+		end
+
 		local function worker()
 			local catalog_pos = iterator()
 			if not catalog_pos then
@@ -46,10 +52,6 @@ building_lib.register_placement("mapblock_lib", {
 
 			-- translate to world-coords
 			local world_pos = vector.add(mapblock_pos, rotated_rel_catalog_pos)
-			local replace = building_def.replace
-			if type(building_def.replace) == "function" then
-				replace = building_def.replace(mapblock_pos, building_def)
-			end
 
 			local place_fn = catalog:prepare(catalog_pos, {
 				on_metadata = building_def.on_metadata,
