@@ -1,7 +1,7 @@
 
 -- mapblock_lib schematic catalog
 building_lib.register_placement("mapblock_lib", {
-	place = function(self, mapblock_pos, building_def, rotation, callback)
+	place = function(self, mapblock_pos, building_def, replacements, rotation, callback)
 		callback = callback or function() end
 
 		local catalog
@@ -33,12 +33,6 @@ building_lib.register_placement("mapblock_lib", {
 
 		local iterator = mapblock_lib.pos_iterator(catalog_pos1, catalog_pos2)
 
-		-- get or calculate replacements
-		local replace = building_def.replace
-		if type(building_def.replace) == "function" then
-			replace = building_def.replace(mapblock_pos, building_def)
-		end
-
 		local function worker()
 			local catalog_pos = iterator()
 			if not catalog_pos then
@@ -61,7 +55,7 @@ building_lib.register_placement("mapblock_lib", {
 						angle = rotation,
 						disable_orientation = building_def.disable_orientation
 					},
-					replace = replace
+					replace = replacements
 				}
 			})
 

@@ -78,18 +78,37 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation, c
 		end
 	end)
 
-	placement.place(placement, mapblock_pos, building_def, rotation, function()
+	-- get or calculate replacements
+	local replacements = building_def.replace
+	if type(building_def.replace) == "function" then
+		replacements = building_def.replace(mapblock_pos, building_def)
+	end
+
+	placement.place(placement, mapblock_pos, building_def, replacements, rotation, function()
 		callback()
 		if old_building_info then
 			-- replacement
 			local old_building_def = building_lib.get_building(old_building_info.name)
-			building_lib.fire_event("replaced", mapblock_pos, playername,
-				old_building_def, old_building_info.rotation, old_building_info.size,
-				building_def, rotation, size
-			)
+			building_lib.fire_event("replaced", {
+				playername = playername,
+				mapblock_pos = mapblock_pos,
+				old_building_def = old_building_def,
+				old_building_info = old_building_info,
+				building_def = building_def,
+				replacements = replacements,
+				rotation = rotation,
+				size = size
+			})
 		else
 			-- new build
-			building_lib.fire_event("placed", mapblock_pos, playername, building_def, rotation, size)
+			building_lib.fire_event("placed", {
+				playername = playername,
+				mapblock_pos = mapblock_pos,
+				building_def = building_def,
+				replacements = replacements,
+				rotation = rotation,
+				size = size
+			})
 		end
 	end)
 	return true
@@ -108,6 +127,10 @@ function building_lib.build_mapgen(mapblock_pos, building_name, rotation)
 		}
 	})
 
-	placement.place(placement, mapblock_pos, building_def, rotation)
-	building_lib.fire_event("placed_mapgen", mapblock_pos, building_def, rotation)
+	placement.place(placement, mapblock_pos, building_def, {}, rotation)
+	building_lib.fire_event("placed_mapgen", {
+		mapblock_pos = mapblock_pos,
+		building_def = building_def,
+		rotation = rotation
+	})
 end
