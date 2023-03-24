@@ -119,6 +119,12 @@ function building_lib.build_mapgen(mapblock_pos, building_name, rotation)
 	local building_def = building_lib.get_building(building_name)
 	local placement = building_lib.get_placement(building_def.placement)
 
+	-- get or calculate replacements
+	local replacements = building_def.replace
+	if type(building_def.replace) == "function" then
+		replacements = building_def.replace(mapblock_pos, building_def)
+	end
+
 	building_lib.store:merge(mapblock_pos, {
 		building = {
 			name = building_def.name,
@@ -127,7 +133,7 @@ function building_lib.build_mapgen(mapblock_pos, building_name, rotation)
 		}
 	})
 
-	placement.place(placement, mapblock_pos, building_def, {}, rotation)
+	placement.place(placement, mapblock_pos, building_def, replacements, rotation)
 	building_lib.fire_event("placed_mapgen", {
 		mapblock_pos = mapblock_pos,
 		building_def = building_def,
