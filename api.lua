@@ -1,10 +1,14 @@
 
 -- name -> building_def
 local buildings = {}
+local building_categories = {}
 
 function building_lib.register_building(name, def)
 	def.name = name
 	def.placement = def.placement or "mapblock_lib"
+	def.category = def.category or "_uncategorized"
+
+	building_categories[def.category] = true
 
 	-- try to validate the building/placement combo
 	local placement = building_lib.get_placement(def.placement)
@@ -32,6 +36,26 @@ end
 
 function building_lib.get_buildings()
     return buildings
+end
+
+function building_lib.get_buildings_by_category(category)
+    local list = {}
+    for _, building_def in pairs(buildings) do
+        if building_def.category == category then
+            table.insert(list, building_def)
+        end
+    end
+    table.sort(list, function(a,b) return a.name < b.name end)
+    return list
+end
+
+function building_lib.get_building_categories()
+	local list = {}
+	for c in pairs(building_categories) do
+		table.insert(list, c)
+	end
+	table.sort(list)
+	return list
 end
 
 -- name -> placement_def
