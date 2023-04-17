@@ -107,10 +107,10 @@ minetest.register_tool("building_lib:place", {
 
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
-        local success, err = building_lib.build(pointed_mapblock_pos, playername, buildingname, rotation)
-        if not success then
+        building_lib.build(pointed_mapblock_pos, playername, buildingname, rotation)
+        :catch(function(err)
             minetest.chat_send_player(playername, err)
-        end
+        end)
     end,
     on_step = function(itemstack, player)
         local playername = player:get_player_name()

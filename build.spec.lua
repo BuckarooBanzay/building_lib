@@ -13,14 +13,15 @@ building_lib.register_building("building_lib:dummy_v2", {
     }
 })
 
+local mapblock_pos = {x=0, y=0, z=0}
+local building_name = "building_lib:dummy"
+local rotation = 0
+local playername = "singleplayer"
+
+
 mtt.register("build", function(callback)
     -- clear store
     building_lib.store:clear()
-
-    local mapblock_pos = {x=0, y=0, z=0}
-    local building_name = "building_lib:dummy"
-    local rotation = 0
-    local playername = "singleplayer"
 
     -- try to build
     local success, err = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
@@ -28,16 +29,13 @@ mtt.register("build", function(callback)
     assert(success)
 
     -- build
-    local callback_called = false
-    success, err = building_lib.build(mapblock_pos, playername, building_name, rotation,
-        function() callback_called = true end
-    )
-    assert(not err)
-    assert(success)
-    assert(callback_called)
+    building_lib.build(mapblock_pos, playername, building_name, rotation)
+    :next(callback)
+end)
 
+mtt.register("try build again", function(callback)
     -- try to build again
-    success, err = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
+    local success, err = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
     assert(err)
     assert(not success)
 
@@ -56,16 +54,13 @@ mtt.register("build", function(callback)
     assert(success)
 
     -- build over
-    callback_called = false
-    success, err = building_lib.build(mapblock_pos, playername, "building_lib:dummy_v2", rotation,
-        function() callback_called = true end
-    )
-    assert(not err)
-    assert(success)
-    assert(callback_called)
+    building_lib.build(mapblock_pos, playername, "building_lib:dummy_v2", rotation)
+    :next(callback)
+end)
 
+mtt.register("remove and verify", function(callback)
     -- try to remove
-    success, err = building_lib.can_remove(mapblock_pos)
+    local success, err = building_lib.can_remove(mapblock_pos)
     assert(not err)
     assert(success)
 
@@ -75,7 +70,7 @@ mtt.register("build", function(callback)
     assert(success)
 
     -- check
-    info = building_lib.get_placed_building_info(mapblock_pos)
+    local info = building_lib.get_placed_building_info(mapblock_pos)
     assert(info == nil)
 
     callback()
@@ -85,23 +80,12 @@ mtt.benchmark("build", function(callback, iterations)
     -- clear store
     building_lib.store:clear()
 
-    local mapblock_pos = {x=0, y=0, z=0}
-    local building_name = "building_lib:dummy"
-    local rotation = 0
-    local playername = "singleplayer"
-
     for _=1,iterations do
         -- build
-        local callback_called = false
-        local success, err = building_lib.build(mapblock_pos, playername, building_name, rotation,
-            function() callback_called = true end
-        )
-        assert(not err)
-        assert(success)
-        assert(callback_called)
+        building_lib.build(mapblock_pos, playername, building_name, rotation)
 
         -- remove
-        success, err = building_lib.remove(mapblock_pos)
+        local success, err = building_lib.remove(mapblock_pos)
         assert(not err)
         assert(success)
     end

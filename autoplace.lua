@@ -44,24 +44,21 @@ function building_lib.autoplace(mapblock_pos, playername, autoplacer_name, enabl
         return false, building_name
     end
 
-    local err
-    success, err = building_lib.build(mapblock_pos, playername, building_name, rotation)
-    if not success then
-        return success, err
-    end
-
-    local autoplacer = building_lib.get_autoplacer(autoplacer_name)
-    if enable_propagation and autoplacer.propagate then
-        -- propagate changes
-        for _, dir in ipairs(autoplacer.propagation_dirs or default_propagation_dirs) do
-            local offset_mapblock_pos = vector.add(mapblock_pos, dir)
-            success = building_lib.check_condition_table(autoplacer.propagate, offset_mapblock_pos)
-            if success then
-                -- selector matches, propagate autobuild
-                building_lib.autoplace(offset_mapblock_pos, playername, autoplacer_name, false)
+    local p = building_lib.build(mapblock_pos, playername, building_name, rotation)
+    p:next(function()
+        local autoplacer = building_lib.get_autoplacer(autoplacer_name)
+        if enable_propagation and autoplacer.propagate then
+            -- propagate changes
+            for _, dir in ipairs(autoplacer.propagation_dirs or default_propagation_dirs) do
+                local offset_mapblock_pos = vector.add(mapblock_pos, dir)
+                success = building_lib.check_condition_table(autoplacer.propagate, offset_mapblock_pos)
+                if success then
+                    -- selector matches, propagate autobuild
+                    building_lib.autoplace(offset_mapblock_pos, playername, autoplacer_name, false)
+                end
             end
         end
-    end
+    end)
 
-    return true
+    return p
 end
