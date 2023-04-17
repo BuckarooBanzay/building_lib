@@ -1,17 +1,5 @@
 local formname = "building_lib_placer_configure"
 
-local function get_building_list()
-    local building_list = {}
-    for name, building_def in pairs(building_lib.get_buildings()) do
-        if not building_def.alias then
-            -- only add original names, not aliases
-            table.insert(building_list, name)
-        end
-    end
-    table.sort(building_list, function(a,b) return a < b end)
-    return building_list
-end
-
 local function get_formspec(itemstack)
     local meta = itemstack:get_meta()
     local selected_category = meta:get_string("category") or "_uncategorized"
