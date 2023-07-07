@@ -2,15 +2,6 @@
 -- playername => key
 local active_preview = {}
 
-local function add_preview_entity(texture, key, visual_size, pos, rotation)
-	local ent = building_lib.add_entity(pos, key)
-	ent:set_properties({
-		visual_size = visual_size,
-		textures = {texture}
-	})
-	ent:set_rotation(rotation)
-end
-
 function building_lib.show_preview(playername, texture, color, building_def, mapblock_pos1, mapblock_pos2, rotation)
 	texture = texture .. "^[colorize:" .. color
 
@@ -35,47 +26,20 @@ function building_lib.show_preview(playername, texture, color, building_def, map
 	local size = vector.multiply(size_mapblocks, 16) -- 16 .. n
 	local half_size = vector.divide(size, 2) -- 8 .. n
 
-	-- z-
-	add_preview_entity(texture, key,
-		{x=size.x, y=size.y},
-		vector.add(min, {x=half_size.x-0.5, y=half_size.y-0.5, z=-0.5}),
-		{x=0, y=0, z=0}
-	)
+	local origin = vector.add(min, half_size)
 
-	-- z+
-	add_preview_entity(texture, key,
-		{x=size.x, y=size.y},
-		vector.add(min, {x=half_size.x-0.5, y=half_size.y-0.5, z=size.z-0.5}),
-		{x=0, y=0, z=0}
-	)
-
-	-- x-
-	add_preview_entity(texture, key,
-		{x=size.z, y=size.y},
-		vector.add(min, {x=-0.5, y=half_size.y-0.5, z=half_size.z-0.5}),
-		{x=0, y=math.pi/2, z=0}
-	)
-
-	-- x+
-	add_preview_entity(texture, key,
-		{x=size.z, y=size.y},
-		vector.add(min, {x=size.x-0.5, y=half_size.y-0.5, z=half_size.z-0.5}),
-		{x=0, y=math.pi/2, z=0}
-	)
-
-	-- y-
-	add_preview_entity(texture, key,
-		{x=size.x, y=size.z},
-		vector.add(min, {x=half_size.x-0.5, y=-0.5, z=half_size.z-0.5}),
-		{x=math.pi/2, y=0, z=0}
-	)
-
-	-- y+
-	add_preview_entity(texture, key,
-		{x=size.x, y=size.z},
-		vector.add(min, {x=half_size.x-0.5, y=size.y-0.5, z=half_size.z-0.5}),
-		{x=math.pi/2, y=0, z=0}
-	)
+	local ent = building_lib.add_cube_entity(origin, key)
+	ent:set_properties({
+		visual_size = size,
+		textures = {
+			texture,
+			texture,
+			texture,
+			texture,
+			texture,
+			texture
+		}
+	})
 
 	if building_def and building_def.markers then
 		-- add markers
@@ -96,15 +60,16 @@ function building_lib.show_preview(playername, texture, color, building_def, map
 				z_rotation = z_rotation + math.pi/2
 			end
 
-			add_preview_entity(
-				marker.texture .. texture_modifier,
-				key, marker.size,
-				node_pos, {
-					x=marker.rotation.x,
-					y=marker.rotation.y,
-					z=z_rotation
-				}
-			)
+			ent = building_lib.add_entity(node_pos, key)
+			ent:set_properties({
+				visual_size = marker.size,
+				textures = {marker.texture .. texture_modifier}
+			})
+			ent:set_rotation({
+				x=marker.rotation.x,
+				y=marker.rotation.y,
+				z=z_rotation
+			})
 		end
 	end
 end
