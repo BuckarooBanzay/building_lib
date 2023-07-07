@@ -7,6 +7,7 @@ RUN apk add git &&\
     cd /root/.minetest/worlds/world/worldmods &&\
     git clone https://github.com/BuckarooBanzay/mtt &&\
     git clone https://github.com/BuckarooBanzay/mtzip &&\
+    git clone https://github.com/BuckarooBanzay/promise &&\
     git clone https://github.com/BuckarooBanzay/mapblock_lib
 
 ENTRYPOINT minetestserver --config /minetest.conf

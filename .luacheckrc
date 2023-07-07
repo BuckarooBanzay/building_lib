@@ -14,5 +14,5 @@ read_globals = {
 	"minetest",
 
 	-- mods
-	"mapblock_lib", "mtt"
+	"mapblock_lib", "mtt", "Promise"
 }

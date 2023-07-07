@@ -1,20 +1,9 @@
 local formname = "building_lib_placer_configure"
 
-local function get_building_list()
-    local building_list = {}
-    for name, building_def in pairs(building_lib.get_buildings()) do
-        if not building_def.alias then
-            -- only add original names, not aliases
-            table.insert(building_list, name)
-        end
-    end
-    table.sort(building_list, function(a,b) return a < b end)
-    return building_list
-end
-
 local function get_formspec(itemstack)
     local meta = itemstack:get_meta()
-    local building_list = get_building_list()
+    local selected_category = meta:get_string("category") or "_uncategorized"
+    local building_list = building_lib.get_buildings_by_category(selected_category)
 
     local selected_buildingname = meta:get_string("buildingname")
     if not selected_buildingname or selected_buildingname == "" then
@@ -24,20 +13,37 @@ local function get_formspec(itemstack)
     local selected_building = 1
     local textlist = ""
 
-    for i, buildingname in ipairs(building_list) do
-        if selected_buildingname == buildingname then
+    for i, building_def in ipairs(building_list) do
+        if selected_buildingname == building_def.name then
             selected_building = i
         end
 
-        textlist = textlist .. buildingname
+        textlist = textlist .. building_def.name
         if i < #building_list then
             textlist = textlist .. ","
         end
     end
 
-    return "size[8,7;]" ..
-        "textlist[0,0.1;8,6;buildingname;" .. textlist .. ";" .. selected_building .. "]" ..
-        "button_exit[0.1,6.5;8,1;back;Back]"
+    local categories = building_lib.get_building_categories()
+    local selected_category_index = 1
+    local cat_list = ""
+
+    for i, category in ipairs(categories) do
+        if category == selected_category then
+            selected_category_index = i
+        end
+
+        cat_list = cat_list .. category
+        if i < #categories then
+            cat_list = cat_list .. ","
+        end
+    end
+
+    return "size[10,10;]" ..
+        "real_coordinates[true]" ..
+        "dropdown[0.5,0.5;9,0.8;category;" .. cat_list .. ";" .. selected_category_index .. "]" ..
+        "textlist[0.5,1.5;9,7.5;buildingname;" .. textlist .. ";" .. selected_building .. "]" ..
+        "button_exit[0.5,9;9,0.8;back;Back]"
 end
 
 minetest.register_on_player_receive_fields(function(player, f, fields)
@@ -56,19 +62,26 @@ minetest.register_on_player_receive_fields(function(player, f, fields)
         if parts[1] == "CHG" then
             local itemstack = player:get_wielded_item()
             local meta = itemstack:get_meta()
+            local selected_category = meta:get_string("category") or "_uncategorized"
 
             local selected = tonumber(parts[2])
-            local building_list = get_building_list()
+            local building_list = building_lib.get_buildings_by_category(selected_category)
 
-            local buildingname = building_list[selected]
-            if not buildingname then
+            local building = building_list[selected]
+            if not building then
                 return
             end
 
-            meta:set_string("buildingname", buildingname)
-            meta:set_string("description", "Selected building: '" .. buildingname .. "'")
+            meta:set_string("buildingname", building.name)
+            meta:set_string("description", "Selected building: '" .. building.name .. "'")
             player:set_wielded_item(itemstack)
         end
+    elseif fields.category then
+        local itemstack = player:get_wielded_item()
+        local meta = itemstack:get_meta()
+        meta:set_string("category", fields.category)
+        player:set_wielded_item(itemstack)
+        minetest.show_formspec(player:get_player_name(), formname, get_formspec(itemstack))
     end
 end)
 
@@ -94,10 +107,10 @@ minetest.register_tool("building_lib:place", {
 
         local meta = itemstack:get_meta()
         local buildingname = meta:get_string("buildingname")
-        local success, err = building_lib.build(pointed_mapblock_pos, playername, buildingname, rotation)
-        if not success then
+        building_lib.build(pointed_mapblock_pos, playername, buildingname, rotation)
+        :catch(function(err)
             minetest.chat_send_player(playername, err)
-        end
+        end)
     end,
     on_step = function(itemstack, player)
         local playername = player:get_player_name()

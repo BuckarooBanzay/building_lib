@@ -39,13 +39,12 @@ function building_lib.can_build(mapblock_pos, _, building_name, rotation)
 	return true
 end
 
-function building_lib.build(mapblock_pos, playername, building_name, rotation, callback)
-	callback = callback or function() end
+function building_lib.build(mapblock_pos, playername, building_name, rotation)
 	rotation = rotation or 0
 
 	local success, message = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
 	if not success then
-		return false, message
+		return Promise.rejected(message)
 	end
 
 	local building_def = building_lib.get_building(building_name)
@@ -84,8 +83,11 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation, c
 		replacements = building_def.replace(mapblock_pos, building_def)
 	end
 
+	local promise = Promise.new()
+
 	placement.place(placement, mapblock_pos, building_def, replacements, rotation, function()
-		callback()
+		promise:resolve()
+
 		if old_building_info then
 			-- replacement
 			local old_building_def = building_lib.get_building(old_building_info.name)
@@ -111,7 +113,7 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation, c
 			})
 		end
 	end)
-	return true
+	return promise
 end
 
 -- mapgen build shortcut, only for 1x1x1 sized buildings
