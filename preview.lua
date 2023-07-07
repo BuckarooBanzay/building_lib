@@ -27,6 +27,7 @@ function building_lib.show_preview(playername, texture, color, building_def, map
 	local half_size = vector.divide(size, 2) -- 8 .. n
 
 	local origin = vector.add(min, half_size)
+	origin = vector.subtract(origin, 0.5)
 
 	local ent = building_lib.add_cube_entity(origin, key)
 	ent:set_properties({
