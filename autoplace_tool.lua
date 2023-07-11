@@ -124,7 +124,7 @@ minetest.register_tool("building_lib:autoplace", {
             rotation
         )
     end,
-    on_blur = function(player)
+    on_deselect = function(player)
         local playername = player:get_player_name()
         building_lib.clear_preview(playername)
     end
