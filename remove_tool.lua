@@ -42,7 +42,7 @@ minetest.register_tool("building_lib:remove", {
             building_info.rotation
         )
     end,
-    on_deselect = function(player)
+    on_deselect = function(_, player)
         local playername = player:get_player_name()
         building_lib.clear_preview(playername)
     end
