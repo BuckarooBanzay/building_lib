@@ -11,5 +11,6 @@ jobs:
           https://github.com/BuckarooBanzay/mtzip.git
           https://github.com/BuckarooBanzay/promise.git
           https://github.com/BuckarooBanzay/mapblock_lib.git
+          https://github.com/mt-mods/wield_events.git
         additional_config: |
           building_lib.enable_example_buildings = true
