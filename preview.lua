@@ -48,7 +48,8 @@ function building_lib.show_preview(playername, texture, color, building_def, map
 		local unrotated_size = building_lib.get_building_size(building_def, 360 - rotation)
 
 		for _, marker in ipairs(building_def.markers) do
-			local rotated_position = mapblock_lib.rotate_pos(marker.position, unrotated_size, rotation)
+			local center_rel_pos = vector.add(marker.position, 0.5)
+			local rotated_position = mapblock_lib.rotate_pos(center_rel_pos, unrotated_size, rotation)
 			local node_pos = vector.multiply(vector.add(mapblock_pos1, rotated_position), 16)
 			node_pos = vector.subtract(node_pos, 0.5)
 			local z_rotation = marker.rotation.z
