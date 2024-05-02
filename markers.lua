@@ -13,24 +13,26 @@ local rotations = {
     ["x-"] = { x=math.pi/2, y=0, z=-math.pi/2 }
 }
 
-function building_lib.create_marker(type, opts)
+function building_lib.create_marker(opts)
     -- apply sane defaults
-    if not textures[type] then
-        type = "arrow"
-    end
     opts = opts or {}
     opts.pos = opts.pos or {}
+    opts.type = opts.type or "arrow"
     opts.pos.x = opts.pos.x or 0
     opts.pos.y = opts.pos.y or 0
     opts.pos.z = opts.pos.z or 0
     opts.size = opts.size or 10
+
+    if not textures[opts.type] then
+        opts.type = "arrow"
+    end
 
     if not rotations[opts.rotation] then
         opts.rotation = "z-"
     end
 
     return {
-        texture = textures[type],
+        texture = textures[opts.type],
         position = opts.pos,
         rotation = rotations[opts.rotation],
         size = {x=opts.size, y=opts.size}
