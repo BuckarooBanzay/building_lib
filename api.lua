@@ -20,6 +20,15 @@ function building_lib.register_building(name, def)
 		end
 	end
 
+	local parts = string.split(name, ":")
+	if #parts ~= 2 then
+		error("building-name invalid: '" .. name .. "' should be in the form: 'modname:building_name'")
+	end
+
+	if parts[1] ~= minetest.get_current_modname() then
+		error("unexpected modname: '" .. parts[1] .. "' expected: " .. minetest.get_current_modname())
+	end
+
 	buildings[name] = def
 end
 
