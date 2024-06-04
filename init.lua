@@ -28,6 +28,11 @@ dofile(MP .. "/events.lua")
 dofile(MP .. "/hacks.lua")
 dofile(MP .. "/mapgen.lua")
 
+local ie = minetest.request_insecure_environment()
+if ie and minetest.get_modpath("isogen") then
+	loadfile(MP .. "/previewgen.lua")(ie)
+end
+
 if minetest.get_modpath("mtt") and mtt.enabled then
 	dofile(MP .. "/events.spec.lua")
 	dofile(MP .. "/conditions.spec.lua")

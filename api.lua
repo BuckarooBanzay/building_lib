@@ -29,6 +29,7 @@ function building_lib.register_building(name, def)
 		error("unexpected modname: '" .. parts[1] .. "' expected: " .. minetest.get_current_modname())
 	end
 
+	def.modname = parts[1]
 	buildings[name] = def
 end
 

@@ -14,5 +14,5 @@ read_globals = {
 	"minetest",
 
 	-- mods
-	"mapblock_lib", "mtt", "Promise"
+	"mapblock_lib", "mtt", "Promise", "isogen"
 }
