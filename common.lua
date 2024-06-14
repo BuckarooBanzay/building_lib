@@ -94,12 +94,14 @@ function building_lib.get_next_removable_position(player)
 		if building_info then
 			local building_def = building_lib.get_building(building_info.name)
 
-			local size = building_lib.get_building_size(building_def, building_info.rotation or 0)
-			local mapblock_pos2 = vector.add(origin, vector.subtract(size, 1))
+			if building_def then
+				local size = building_lib.get_building_size(building_def, building_info.rotation or 0)
+				local mapblock_pos2 = vector.add(origin, vector.subtract(size, 1))
 
-			local can_remove = building_lib.can_remove(origin)
-			if can_remove then
-				return building_def, origin, mapblock_pos2, building_info.rotation
+				local can_remove = building_lib.can_remove(origin)
+				if can_remove then
+					return building_def, origin, mapblock_pos2, building_info.rotation
+				end
 			end
 		end
 	end
