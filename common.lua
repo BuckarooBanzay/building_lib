@@ -108,3 +108,11 @@ function building_lib.get_next_removable_position(player)
 
 	return false
 end
+
+function building_lib.get_preview_texture(building_def)
+	return string.gsub(building_def.name, ":", "_") .. "_preview.png"
+end
+
+function building_lib.get_preview_filename(building_def)
+	return minetest.get_modpath(building_def.modname) .. "/textures/" .. building_lib.get_preview_texture(building_def)
+end

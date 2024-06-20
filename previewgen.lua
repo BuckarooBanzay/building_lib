@@ -26,9 +26,7 @@ local function generate_preview(building_def)
         end
     })
 
-    local filename = minetest.get_modpath(building_def.modname) ..
-        "/textures/" .. string.gsub(building_def.name, ":", "_") .. "_preview.png"
-
+    local filename = building_lib.get_preview_filename(building_def)
     local f = ie.io.open(filename, "wb")
     if not f then
         return false, "could not open file: '" .. filename .. "'"
