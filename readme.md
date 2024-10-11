@@ -114,9 +114,9 @@ building_lib.register_building("buildings:my_building_with_timer", {
 })
 
 local timer = building_lib.get_building_timer(mapblock_pos)
+timer:set(timeout, elapsed)
 timer:start(10)
 timer:stop()
-timer:set(timeout, elapsed)
 timer:get_timeout()
 timer:get_elapsed()
 timer:is_started()

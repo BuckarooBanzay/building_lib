@@ -1,7 +1,17 @@
 
+local granularity = 10
+
 building_lib = {
 	-- data storage
-	store = mapblock_lib.create_data_storage(minetest.get_mod_storage()),
+	store = mapblock_lib.create_data_storage(minetest.get_mod_storage(), {
+		granularity = granularity
+	}),
+
+	-- mapblock granularity
+	granularity = granularity,
+
+	-- active timer range (in granularity steps, 1 means +/-1 * granularity)
+	active_timer_range = 1,
 
 	-- special mapgen owner constant
 	mapgen_owned = "$$mapgen"
