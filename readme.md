@@ -101,6 +101,27 @@ building_lib.register_on("removed", function(event) end)
 -- event payload fields: mapblock_pos, playername, old_building_def, building_info
 ```
 
+## Building timers
+
+**WIP**
+
+```lua
+building_lib.register_building("buildings:my_building_with_timer", {
+	on_timer = function(mapblock_pos, elapsed)
+		-- do periodic stuff
+		return true -- schedule again with same timeout
+	end
+})
+
+local timer = building_lib.get_building_timer(mapblock_pos)
+timer:start(10)
+timer:stop()
+timer:set(timeout, elapsed)
+timer:get_timeout()
+timer:get_elapsed()
+timer:is_started()
+```
+
 ## Chat commands
 
 * `/building_info`
