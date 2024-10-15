@@ -14,7 +14,7 @@ building_lib.register_building(building_name, {
     end
 })
 
-mtt.register("building_lib.get_building_timer", function(callback)
+mtt.register("building_lib.get_building_timer", function()
     -- clear store
     building_lib.store:clear()
 
@@ -24,7 +24,7 @@ mtt.register("building_lib.get_building_timer", function(callback)
     assert(success)
 
     -- build
-    building_lib.build(building_mapblock_pos, playername, building_name, rotation)
+    return building_lib.build(building_mapblock_pos, playername, building_name, rotation)
     :next(function()
         print(dump({
             fn = "get timer",
@@ -63,7 +63,5 @@ mtt.register("building_lib.get_building_timer", function(callback)
             timer_mapblock_pos = timer_mapblock_pos,
             timer_elapsed = timer_elapsed
         }))
-
-        callback()
     end)
 end)
