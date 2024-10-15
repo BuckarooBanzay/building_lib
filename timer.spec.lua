@@ -45,6 +45,13 @@ mtt.register("building_lib.get_building_timer", function()
         }))
 
         building_lib.update_timers(pos, 5)
+
+        print(dump({
+            fn = "post update 1",
+            timer_mapblock_pos = timer_mapblock_pos,
+            timer_elapsed = timer_elapsed
+        }))
+
         assert(not timer_mapblock_pos)
         assert(not timer_elapsed)
 

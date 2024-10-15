@@ -97,9 +97,7 @@ function building_lib.update_timers(pos, interval)
         }))
         -- increment active timers and call `on_timer` on buildings
         local mapblock_pos = minetest.pos_to_string(mapblock_pos_str)
-        if entry.elapsed then
-            entry.elapsed = entry.elapsed + interval
-        end
+        entry.elapsed = entry.elapsed + interval
 
         local remove_timer = false
 
@@ -125,6 +123,14 @@ function building_lib.update_timers(pos, interval)
             data.timers[mapblock_pos_str] = nil
         end
     end
+
+    print(dump({
+        fn = "post update_timers data",
+        pos = pos,
+        interval = interval,
+        rpos = rpos,
+        data = data
+    }))
 
     -- store timer data
     building_lib.store:set_group_data(rpos, data)
