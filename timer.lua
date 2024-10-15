@@ -11,36 +11,40 @@ function building_lib.get_building_timer(mapblock_pos)
     return setmetatable(self, BuildingTimer_mt)
 end
 
-local function get_timer_key(mapblock_pos)
-    return "timer_" .. minetest.pos_to_string(mapblock_pos)
-end
-
 function BuildingTimer:get_entry()
     local data = building_lib.store:get_group_data(self.mapblock_pos)
-    local key = get_timer_key(self.mapblock_pos)
-    return data[key] or {}
+    if not data.timers then
+        -- create timers table
+        data.timers = {}
+        building_lib.store:set_group_data(self.mapblock_pos, data)
+    end
+
+    local key = minetest.pos_to_string(self.mapblock_pos)
+    return data.timers[key] or {}
+end
+
+function BuildingTimer:set_entry(entry)
+    local data = building_lib.store:get_group_data(self.mapblock_pos)
+    if not data.timers then
+        -- create timers table
+        data.timers = {}
+    end
+
+    local key = minetest.pos_to_string(self.mapblock_pos)
+    data.timers[key] = entry
+    building_lib.store:set_group_data(self.mapblock_pos, data)
 end
 
 function BuildingTimer:set(timeout, elapsed)
-    -- TODO: move timers to own field for better lookup
-    local data = building_lib.store:get_group_data(self.mapblock_pos)
-    local key = get_timer_key(self.mapblock_pos)
-
     if timeout > 0 then
-        -- started, update entry
-        local entry = data[key]
-        if not entry then
-            entry = {}
-            data[key] = entry
-        end
-
-        entry.timeout = timeout
-        entry.elapsed = elapsed
+        self:set_entry({
+            timeout = timeout,
+            elapsed = elapsed
+        })
     else
         -- stopped, remove entry
-        data[key] = nil
+        self:set_entry(nil)
     end
-    building_lib.store:set_group_data(self.mapblock_pos, data)
 end
 
 function BuildingTimer:start(timeout)
@@ -67,11 +71,24 @@ function BuildingTimer:is_started()
 end
 
 function building_lib.update_timers(pos)
-    -- TODO
-    print(dump(pos))
+    local mapblock_pos = mapblock_lib.get_mapblock(pos)
+    local data = building_lib.store:get_group_data(mapblock_pos)
+    if not data.timers then
+        -- no timers found in the mapblock
+        return
+    end
+
+    for mapblock_pos_str, entry in pairs(data.timers) do
+        -- TODO: decrement active timers and call `on_timer` on buildings
+        print(dump({
+            fn = "processing mapblock timer",
+            mapblock_pos_str = mapblock_pos_str,
+            entry = entry
+        }))
+    end
 end
 
--- TODO: iterate over active areas and operate on `DataStorage:get_group_data(pos)`
+-- iterate over active areas and operate on `DataStorage:get_group_data(pos)`
 local function timer_update_loop()
     local visited = {}
 
