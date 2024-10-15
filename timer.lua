@@ -70,23 +70,51 @@ function BuildingTimer:is_started()
     return entry.timeout and entry.timeout > entry.elapsed
 end
 
-function building_lib.update_timers(pos)
-    local mapblock_pos = mapblock_lib.get_mapblock(pos)
-    local data = building_lib.store:get_group_data(mapblock_pos)
+function building_lib.update_timers(pos, interval)
+    local rpos = mapblock_lib.get_mapblock(pos)
+    local data = building_lib.store:get_group_data(rpos)
     if not data.timers then
         -- no timers found in the mapblock
         return
     end
 
     for mapblock_pos_str, entry in pairs(data.timers) do
-        -- TODO: decrement active timers and call `on_timer` on buildings
-        print(dump({
-            fn = "processing mapblock timer",
-            mapblock_pos_str = mapblock_pos_str,
-            entry = entry
-        }))
+        -- increment active timers and call `on_timer` on buildings
+        local mapblock_pos = minetest.pos_to_string(mapblock_pos_str)
+        if entry.elapsed then
+            entry.elapsed = entry.elapsed + interval
+        end
+
+        local remove_timer = false
+
+        if entry.elapsed >= entry.timeout then
+            -- timer event
+            local def = building_lib.get_building_def_at(mapblock_pos)
+            if type(def.on_timer) == "function" then
+                local result = def.on_timer(mapblock_pos, entry.elapsed)
+                if result then
+                    -- reschedule
+                    entry.elapsed = 0
+                else
+                    -- remove
+                    remove_timer = true
+                end
+            else
+                -- invalid field type
+                remove_timer = true
+            end
+        end
+
+        if remove_timer then
+            data.timers[mapblock_pos_str] = nil
+        end
     end
+
+    -- store timer data
+    building_lib.store:set_group_data(rpos, data)
 end
+
+local TIMER_INTERVAL = 2
 
 -- iterate over active areas and operate on `DataStorage:get_group_data(pos)`
 local function timer_update_loop()
@@ -110,7 +138,7 @@ local function timer_update_loop()
 
                     -- check if already processed
                     if not visited[key] then
-                        building_lib.update_timers(pos)
+                        building_lib.update_timers(pos, TIMER_INTERVAL)
                         visited[key] = true
                     end
                 end
@@ -118,7 +146,7 @@ local function timer_update_loop()
         end
     end
 
-    minetest.after(2, timer_update_loop)
+    minetest.after(TIMER_INTERVAL, timer_update_loop)
 end
 
 minetest.after(1, timer_update_loop)
