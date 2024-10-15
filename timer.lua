@@ -92,7 +92,8 @@ function building_lib.update_timers(pos, interval)
             fn = "update_timers iter",
             mapblock_pos_str = mapblock_pos_str,
             pos = pos,
-            interval = interval
+            interval = interval,
+            entry = entry
         }))
         -- increment active timers and call `on_timer` on buildings
         local mapblock_pos = minetest.pos_to_string(mapblock_pos_str)
