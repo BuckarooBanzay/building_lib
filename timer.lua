@@ -74,27 +74,12 @@ function building_lib.update_timers(pos, interval)
     local rpos = mapblock_lib.get_mapblock(pos)
     local data = building_lib.store:get_group_data(rpos)
 
-    print(dump({
-        fn = "update_timers data",
-        pos = pos,
-        interval = interval,
-        rpos = rpos,
-        data = data
-    }))
-
     if not data.timers then
         -- no timers found in the mapblock
         return
     end
 
     for mapblock_pos_str, entry in pairs(data.timers) do
-        print(dump({
-            fn = "update_timers iter",
-            mapblock_pos_str = mapblock_pos_str,
-            pos = pos,
-            interval = interval,
-            entry = entry
-        }))
         -- increment active timers and call `on_timer` on buildings
         local mapblock_pos = minetest.string_to_pos(mapblock_pos_str)
         entry.elapsed = entry.elapsed + interval
@@ -123,14 +108,6 @@ function building_lib.update_timers(pos, interval)
             data.timers[mapblock_pos_str] = nil
         end
     end
-
-    print(dump({
-        fn = "post update_timers data",
-        pos = pos,
-        interval = interval,
-        rpos = rpos,
-        data = data
-    }))
 
     -- store timer data
     building_lib.store:set_group_data(rpos, data)
