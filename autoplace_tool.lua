@@ -95,13 +95,13 @@ minetest.register_tool("building_lib:autoplace", {
 
         local success, building_name, rotation = building_lib.can_autoplace(mapblock_pos1, playername, autoplacer_name)
         if not success then
-            building_lib.clear_preview(playername)
+            building_lib.clear_display(playername)
             return
         end
 
         local building_def = building_lib.get_building(building_name)
         if not building_def then
-            building_lib.clear_preview(playername)
+            building_lib.clear_display(playername)
             return
         end
 
@@ -114,7 +114,7 @@ minetest.register_tool("building_lib:autoplace", {
             color = "#ffff00"
         end
 
-        building_lib.show_preview(
+        building_lib.show_display(
             playername,
             "building_lib_autoplace.png",
             color,
@@ -126,6 +126,6 @@ minetest.register_tool("building_lib:autoplace", {
     end,
     on_deselect = function(_, player)
         local playername = player:get_player_name()
-        building_lib.clear_preview(playername)
+        building_lib.clear_display(playername)
     end
 })

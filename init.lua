@@ -20,12 +20,13 @@ building_lib = {
 local MP = minetest.get_modpath("building_lib")
 dofile(MP .. "/memoize.lua")
 dofile(MP .. "/entity.lua")
-dofile(MP .. "/preview.lua")
+dofile(MP .. "/display.lua")
 dofile(MP .. "/api.lua")
 dofile(MP .. "/common.lua")
 dofile(MP .. "/markers.lua")
 dofile(MP .. "/placements/mapblock_lib.lua")
 dofile(MP .. "/placements/dummy.lua")
+dofile(MP .. "/preview.lua")
 dofile(MP .. "/conditions.lua")
 dofile(MP .. "/build.lua")
 dofile(MP .. "/build_tool.lua")
@@ -38,11 +39,6 @@ dofile(MP .. "/chat.lua")
 dofile(MP .. "/events.lua")
 dofile(MP .. "/hacks.lua")
 dofile(MP .. "/mapgen.lua")
-
-local ie = minetest.request_insecure_environment()
-if ie and minetest.get_modpath("isogen") then
-	loadfile(MP .. "/previewgen.lua")(ie)
-end
 
 if minetest.get_modpath("mtt") and mtt.enabled then
 	dofile(MP .. "/events.spec.lua")

@@ -114,7 +114,7 @@ minetest.register_tool("building_lib:place", {
 
         local building_def, mb_pos1, mb_pos2, rotation = building_lib.get_next_buildable_position(player, buildingname)
         if building_def then
-            building_lib.show_preview(
+            building_lib.show_display(
                 playername,
                 "building_lib_place.png",
                 "#00ff00",
@@ -124,11 +124,11 @@ minetest.register_tool("building_lib:place", {
                 rotation
             )
         else
-            building_lib.clear_preview(playername)
+            building_lib.clear_display(playername)
         end
     end,
     on_deselect = function(_, player)
         local playername = player:get_player_name()
-        building_lib.clear_preview(playername)
+        building_lib.clear_display(playername)
     end
 })

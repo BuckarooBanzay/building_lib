@@ -1,89 +1,123 @@
+local cube_len = 8
 
--- playername => key
-local active_preview = {}
+-- name -> { png, width, height, timestamp }
+local previews = {}
 
-function building_lib.show_preview(playername, texture, color, building_def, mapblock_pos1, mapblock_pos2, rotation)
-	texture = texture .. "^[colorize:" .. color
+function building_lib.generate_building_preview(building_def)
+    local catalog
+    local offset = {x=0, y=0, z=0}
+    local size
 
-	mapblock_pos2 = mapblock_pos2 or mapblock_pos1
-	local key =
-		minetest.pos_to_string(mapblock_pos1) .. "/" ..
-		minetest.pos_to_string(mapblock_pos2) .. "/" ..
-		texture .. "/" ..
-		rotation
+    if type(building_def.catalog) == "table" then
+        catalog = mapblock_lib.get_catalog(building_def.catalog.filename)
+        offset = building_def.catalog.offset or {x=0, y=0, z=0}
+        size = building_def.catalog.size or {x=1, y=1, z=1}
+    else
+        catalog = mapblock_lib.get_catalog(building_def.catalog)
+        size = catalog:get_size()
+    end
 
-	if active_preview[playername] == key then
-		-- already active on the same region
-		return
-	end
-	-- clear previous entities
-	building_lib.clear_preview(playername)
-	active_preview[playername] = key
+    local mb_pos2 = vector.add(offset, vector.subtract(size, 1))
 
-	local min, _ = mapblock_lib.get_mapblock_bounds_from_mapblock(mapblock_pos1)
+    local min = mapblock_lib.get_mapblock_bounds_from_mapblock(offset)
+    local _, max = mapblock_lib.get_mapblock_bounds_from_mapblock(mb_pos2)
 
-	local size_mapblocks = vector.subtract(vector.add(mapblock_pos2, 1), mapblock_pos1) -- 1 .. n
-	local size = vector.multiply(size_mapblocks, 16) -- 16 .. n
-	local half_size = vector.divide(size, 2) -- 8 .. n
+    local png = isogen.draw(min, max, {
+        cube_len = cube_len,
+        get_node = function(pos)
+            return catalog:get_node(pos)
+        end
+    })
 
-	local origin = vector.add(min, half_size)
-	origin = vector.subtract(origin, 0.5)
+    local node_size = vector.add(vector.subtract(max, min), 1)
+    local width, height = isogen.calculate_image_size(node_size, cube_len)
 
-	local ent = building_lib.add_cube_entity(origin, key)
-	ent:set_properties({
-		visual_size = size,
-		textures = {
-			texture,
-			texture,
-			texture,
-			texture,
-			texture,
-			texture
-		}
-	})
-
-	if building_def and building_def.markers then
-		-- add markers
-		local texture_modifier = "^[colorize:" .. color
-		local unrotated_size = building_lib.get_building_size(building_def, 360 - rotation)
-
-		for _, marker_opts in ipairs(building_def.markers) do
-			local marker = building_lib.create_marker(marker_opts)
-			local center_rel_pos = vector.add(marker.position, 0.5)
-			local rotated_position = mapblock_lib.rotate_pos(center_rel_pos, unrotated_size, rotation)
-			local node_pos = vector.multiply(vector.add(mapblock_pos1, rotated_position), 16)
-			node_pos = vector.subtract(node_pos, 0.5)
-			local z_rotation = marker.rotation.z
-
-			if rotation == 90 then
-				z_rotation = z_rotation - math.pi/2
-			elseif rotation == 180 then
-				z_rotation = z_rotation + math.pi
-			elseif rotation == 270 then
-				z_rotation = z_rotation + math.pi/2
-			end
-
-			ent = building_lib.add_entity(node_pos, key)
-			ent:set_properties({
-				visual_size = marker.size,
-				textures = {marker.texture .. texture_modifier}
-			})
-			ent:set_rotation({
-				x=marker.rotation.x,
-				y=marker.rotation.y,
-				z=z_rotation
-			})
-		end
-	end
+    return {
+        png = minetest.encode_base64(png),
+        width = width,
+        height = height,
+        timestamp = os.time()
+    }
 end
 
-function building_lib.clear_preview(playername)
-	if active_preview[playername] then
-		building_lib.remove_entities(active_preview[playername])
-		active_preview[playername] = nil
-	end
+-- preview file in the world folder
+local preview_filename = minetest.get_worldpath() .. "/building_preview.json"
+
+minetest.register_chatcommand("building_previewgen", {
+    params = "[modname]",
+    privs = {
+        mapblock_lib = true
+    },
+    func = function(name, modname)
+        local world_previews = {}
+
+        local f = io.open(preview_filename, "rb")
+        if f then
+            -- read previous previews
+            local json = f:read("*all")
+            f:close()
+            world_previews = minetest.parse_json(json)
+        end
+
+        local buildings = building_lib.get_buildings()
+        local list = {}
+        for _, building in pairs(buildings) do
+            if building.modname == modname and building.placement == "mapblock_lib" then
+                table.insert(list, building)
+            end
+        end
+
+        if #list == 0 then
+            return false, "no buildings found with given modname"
+        end
+
+        local count = 0
+        local worker
+        worker = function()
+            local building = table.remove(list)
+            if not building then
+                minetest.chat_send_player(name, "Done generating " .. count .. " previews")
+                minetest.safe_file_write(preview_filename, minetest.write_json(world_previews))
+                return
+            end
+
+            minetest.chat_send_player(name, "Generating preview for '" .. building.name .. "'")
+            count = count + 1
+            local data, err = building_lib.generate_building_preview(building)
+            if not data then
+                minetest.chat_send_player(
+                    name,
+                    "Preview generation failed for building: '" .. building.name .. "', error: " .. err
+                )
+            else
+                world_previews[building.name] = data
+                minetest.after(0, worker)
+            end
+        end
+
+        minetest.after(0, worker)
+        return true, "Scheduled " .. #list .. " buildings for preview-generation"
+    end
+})
+
+-- returns a cached or ad-hoc generated preview table
+function building_lib.get_building_preview(building_name)
+    if previews[building_name] then
+        return previews[building_name]
+    end
+
+    local building_def = building_lib.get_building(building_name)
+    if not building_def then
+        return false, "building not found: '" .. building_name .. "'"
+    end
+
+    local preview, err = building_lib.generate_building_preview(building_def)
+    if err then
+        return false, "generate preview error: " .. err
+    end
+
+    previews[building_name] = preview
+    return preview
 end
 
-minetest.register_on_leaveplayer(function(player)
-	building_lib.clear_preview(player:get_player_name())
-end)
+-- TODO: generate all previews on startup
