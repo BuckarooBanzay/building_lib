@@ -1,10 +1,21 @@
 local formname = "building_lib_placer_configure"
 
+local function get_sorted_building_list()
+    local buildings = building_lib.get_buildings()
+    local building_list = {}
+    for name in pairs(buildings) do
+        table.insert(building_list, name)
+    end
+    table.sort(building_list)
+    return building_list
+end
+
 local function get_formspec(itemstack)
     local meta = itemstack:get_meta()
-    local selected_category = meta:get_string("category") or "_uncategorized"
-    local building_list = building_lib.get_buildings_by_category(selected_category)
 
+    local building_list = get_sorted_building_list()
+
+    -- selected building name or first in list
     local selected_buildingname = meta:get_string("buildingname")
     if not selected_buildingname or selected_buildingname == "" then
         selected_buildingname = building_list[1]
@@ -13,36 +24,20 @@ local function get_formspec(itemstack)
     local selected_building = 1
     local textlist = ""
 
-    for i, building_def in ipairs(building_list) do
-        if selected_buildingname == building_def.name then
+    for i, name in pairs(building_list) do
+        if selected_buildingname == name then
             selected_building = i
         end
 
-        textlist = textlist .. building_def.name
+        textlist = textlist .. name
         if i < #building_list then
             textlist = textlist .. ","
         end
     end
 
-    local categories = building_lib.get_building_categories()
-    local selected_category_index = 1
-    local cat_list = ""
-
-    for i, category in ipairs(categories) do
-        if category == selected_category then
-            selected_category_index = i
-        end
-
-        cat_list = cat_list .. category
-        if i < #categories then
-            cat_list = cat_list .. ","
-        end
-    end
-
     return "size[10,10;]" ..
         "real_coordinates[true]" ..
-        "dropdown[0.5,0.5;9,0.8;category;" .. cat_list .. ";" .. selected_category_index .. "]" ..
-        "textlist[0.5,1.5;9,7.5;buildingname;" .. textlist .. ";" .. selected_building .. "]" ..
+        "textlist[0.5,0.5;9,8.5;buildingname;" .. textlist .. ";" .. selected_building .. "]" ..
         "button_exit[0.5,9;9,0.8;back;Back]"
 end
 
@@ -62,26 +57,18 @@ minetest.register_on_player_receive_fields(function(player, f, fields)
         if parts[1] == "CHG" then
             local itemstack = player:get_wielded_item()
             local meta = itemstack:get_meta()
-            local selected_category = meta:get_string("category") or "_uncategorized"
 
             local selected = tonumber(parts[2])
-            local building_list = building_lib.get_buildings_by_category(selected_category)
-
-            local building = building_list[selected]
-            if not building then
+            local building_list = get_sorted_building_list()
+            local building_name = building_list[selected]
+            if not building_name then
                 return
             end
 
-            meta:set_string("buildingname", building.name)
-            meta:set_string("description", "Selected building: '" .. building.name .. "'")
+            meta:set_string("buildingname", building_name)
+            meta:set_string("description", "Selected building: '" .. building_name .. "'")
             player:set_wielded_item(itemstack)
         end
-    elseif fields.category then
-        local itemstack = player:get_wielded_item()
-        local meta = itemstack:get_meta()
-        meta:set_string("category", fields.category)
-        player:set_wielded_item(itemstack)
-        minetest.show_formspec(player:get_player_name(), formname, get_formspec(itemstack))
     end
 end)
 
@@ -91,7 +78,12 @@ minetest.register_tool("building_lib:place", {
     stack_max = 1,
     range = 0,
     on_secondary_use = function(itemstack, player)
-        minetest.show_formspec(player:get_player_name(), formname, get_formspec(itemstack))
+        local fs = get_formspec(itemstack)
+        if fs then
+            minetest.show_formspec(player:get_player_name(), formname, fs)
+        else
+            minetest.chat_send_player(player, "no buildings available")
+        end
     end,
     on_use = function(itemstack, player)
         local playername = player:get_player_name()
