@@ -101,7 +101,10 @@ function building_lib.get_next_buildable_position(player, buildingname)
 		if placed_building_info then
 			-- use origin and rotation of existing pointed-at building
 			pointed_mapblock_pos = placed_building_origin
-			rotation = placed_building_info.rotation
+			if not building_def.ignore_placed_rotation then
+				-- use rotation from already placed building
+				rotation = placed_building_info.rotation
+			end
 		end
 
 		if building_def then
