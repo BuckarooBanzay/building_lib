@@ -43,22 +43,28 @@ end
 -- preview file in the world folder
 local preview_filename = minetest.get_worldpath() .. "/building_preview.json"
 
+local function load_previews()
+    local f = io.open(preview_filename, "rb")
+    if f then
+        -- read previous previews
+        local json = f:read("*all")
+        f:close()
+        previews = minetest.parse_json(json)
+    end
+end
+
+local function save_previews()
+    minetest.safe_file_write(preview_filename, minetest.write_json(previews))
+end
+
+load_previews()
+
 minetest.register_chatcommand("building_previewgen", {
     params = "[modname]",
     privs = {
         mapblock_lib = true
     },
     func = function(name, modname)
-        local world_previews = {}
-
-        local f = io.open(preview_filename, "rb")
-        if f then
-            -- read previous previews
-            local json = f:read("*all")
-            f:close()
-            world_previews = minetest.parse_json(json)
-        end
-
         local buildings = building_lib.get_buildings()
         local list = {}
         for _, building in pairs(buildings) do
@@ -77,7 +83,7 @@ minetest.register_chatcommand("building_previewgen", {
             local building = table.remove(list)
             if not building then
                 minetest.chat_send_player(name, "Done generating " .. count .. " previews")
-                minetest.safe_file_write(preview_filename, minetest.write_json(world_previews))
+                save_previews()
                 return
             end
 
@@ -90,7 +96,7 @@ minetest.register_chatcommand("building_previewgen", {
                     "Preview generation failed for building: '" .. building.name .. "', error: " .. err
                 )
             else
-                world_previews[building.name] = data
+                previews[building.name] = data
                 minetest.after(0, worker)
             end
         end
@@ -117,7 +123,8 @@ function building_lib.get_building_preview(building_name)
     end
 
     previews[building_name] = preview
+    save_previews()
     return preview
 end
 
--- TODO: generate all previews on startup
+-- TODO: generate all missing previews on startup
