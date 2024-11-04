@@ -81,35 +81,44 @@ minetest.register_tool("building_lib:autoplace", {
         local meta = itemstack:get_meta()
         local playername = player:get_player_name()
         local autoplacer_name = meta:get_string("autoplacer_name")
-        local pointed_mapblock_pos = building_lib.get_pointed_mapblock(player)
-        local success, err = building_lib.autoplace(pointed_mapblock_pos, playername, autoplacer_name, true)
+
+        local _, mb_pos1 = building_lib.get_next_autoplacer_position(player, autoplacer_name)
+        local success, err = building_lib.autoplace(mb_pos1, playername, autoplacer_name, true)
         if not success then
             minetest.chat_send_player(playername, err)
         end
     end,
     on_step = function(itemstack, player)
         local playername = player:get_player_name()
-        local mapblock_pos1 = building_lib.get_pointed_mapblock(player)
         local meta = itemstack:get_meta()
         local autoplacer_name = meta:get_string("autoplacer_name")
 
-        local success, building_name, rotation = building_lib.can_autoplace(mapblock_pos1, playername, autoplacer_name)
+        local _, mb_pos1 = building_lib.get_next_autoplacer_position(player, autoplacer_name)
+        if not mb_pos1 then
+            -- no valid position found
+            building_lib.clear_display(playername)
+            return
+        end
+
+        local success, building_name, rotation = building_lib.can_autoplace(mb_pos1, playername, autoplacer_name)
         if not success then
+            -- no valid placement found
             building_lib.clear_display(playername)
             return
         end
 
         local building_def = building_lib.get_building(building_name)
         if not building_def then
+            -- building not found
             building_lib.clear_display(playername)
             return
         end
 
         local size = building_lib.get_building_size(building_def, rotation)
-        local mapblock_pos2 = vector.add(mapblock_pos1, vector.subtract(size, 1))
+        local mapblock_pos2 = vector.add(mb_pos1, vector.subtract(size, 1))
 
         local color = "#00ff00"
-        local can_build = building_lib.can_build(mapblock_pos1, playername, building_def.name, rotation)
+        local can_build = building_lib.can_build(mb_pos1, playername, building_def.name, rotation)
         if not can_build then
             color = "#ffff00"
         end
@@ -119,7 +128,7 @@ minetest.register_tool("building_lib:autoplace", {
             "building_lib_autoplace.png",
             color,
             building_def,
-            mapblock_pos1,
+            mb_pos1,
             mapblock_pos2,
             rotation
         )

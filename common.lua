@@ -57,7 +57,40 @@ end
 local min_range = 1
 local max_range = 10
 
+function building_lib.get_next_autoplacer_position(player, autoplacer_name)
+	local playername = player:get_player_name()
+
+	for range=min_range,max_range do
+		local pointed_mapblock_pos = mapblock_lib.get_pointed_position(player, range)
+
+		local placed_building_info, placed_building_origin = building_lib.get_placed_building_info(pointed_mapblock_pos)
+		if placed_building_info then
+			-- use origin and rotation of existing pointed-at building
+			pointed_mapblock_pos = placed_building_origin
+		end
+
+		local success, building_name, rotation = building_lib.can_autoplace(pointed_mapblock_pos, playername, autoplacer_name)
+		if success then
+			local building_def = building_lib.get_building(building_name)
+			local size = building_lib.get_building_size(building_def, rotation)
+			local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
+
+			local can_build = building_lib.can_build(pointed_mapblock_pos, playername, building_def.name, rotation)
+			if can_build then
+				return building_def, pointed_mapblock_pos, mapblock_pos2, rotation
+			end
+		end
+	end
+
+	return false
+end
+
 function building_lib.get_next_buildable_position(player, buildingname)
+	local building_def = building_lib.get_building(buildingname)
+	if not building_def then
+		return false
+	end
+
 	local playername = player:get_player_name()
 
 	for range=min_range,max_range do
@@ -71,7 +104,6 @@ function building_lib.get_next_buildable_position(player, buildingname)
 			rotation = placed_building_info.rotation
 		end
 
-		local building_def = building_lib.get_building(buildingname)
 		if building_def then
 			local size = building_lib.get_building_size(building_def, rotation)
 			local mapblock_pos2 = vector.add(pointed_mapblock_pos, vector.subtract(size, 1))
