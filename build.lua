@@ -60,7 +60,7 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation)
 	local old_building_info = building_lib.get_placed_building_info(mapblock_pos)
 
 	-- write new data
-	mapblock_lib.for_each(mapblock_pos, vector.add(mapblock_pos, vector.subtract(size, 1)), function(offset_mapblock_pos)
+	for offset_mapblock_pos in mapblock_lib.pos_iterator(mapblock_pos, vector.add(mapblock_pos, vector.subtract(size, 1))) do
 		if vector.equals(offset_mapblock_pos, mapblock_pos) then
 			-- origin
 			building_lib.store:merge(offset_mapblock_pos, {
@@ -75,7 +75,7 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation)
 			-- link to origin
 			building_lib.store:merge(offset_mapblock_pos, mapblock_lib.create_data_link(mapblock_pos))
 		end
-	end)
+	end
 
 	-- get or calculate replacements
 	local replacements = building_def.replace

@@ -1,17 +1,17 @@
+std = "minetest+min"
+max_line_length = 200
+
 globals = {
 	"building_lib"
 }
 
 read_globals = {
-	-- Stdlib
-	string = {fields = {"split", "trim"}},
-	table = {fields = {"copy", "getn"}},
-
-	-- Minetest
-	"vector", "ItemStack",
-	"dump", "dump2",
-	"VoxelArea",
-	"minetest",
+	"unpack",
+	minetest = {
+		fields = {
+			"get_perlin_map"
+		}
+	},
 
 	-- mods
 	"mapblock_lib", "mtt", "Promise", "isogen"
