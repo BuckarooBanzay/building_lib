@@ -8,7 +8,7 @@
 local success, message = building_lib.can_build(mapblock_pos, playername, building_name, rotation)
 
 -- build it there
-local promise = building_lib.build(mapblock_pos, playername, building_name, rotation, callback)
+local promise = building_lib.build(mapblock_pos, playername, building_name, rotation)
 promise:next(function()
 	-- success
 end):catch(function(e)
@@ -63,7 +63,9 @@ building_lib.register_building("buildings:my_building", {
 -- registers a placement type (connected, simple, etc)
 building_lib.register_placement("simple", {
 	-- place the building
-	place = function(self, mapblock_pos, building_def, rotation, callback) end,
+	place = function(self, mapblock_pos, building_def, rotation)
+		return Promise.resolve()
+	end,
 	-- return the size of the building if it would be placed there
 	get_size = function(self, mapblock_pos, building_def, rotation)
 		return { x=1, y=1, z=1 }

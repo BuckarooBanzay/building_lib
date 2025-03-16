@@ -83,11 +83,7 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation)
 		replacements = building_def.replace(mapblock_pos, building_def)
 	end
 
-	local promise = Promise.new()
-
-	placement.place(placement, mapblock_pos, building_def, replacements, rotation, function()
-		promise:resolve()
-
+	return placement.place(placement, mapblock_pos, building_def, replacements, rotation):next(function()
 		if old_building_info then
 			-- replacement
 			local old_building_def = building_lib.get_building(old_building_info.name)
@@ -113,7 +109,6 @@ function building_lib.build(mapblock_pos, playername, building_name, rotation)
 			})
 		end
 	end)
-	return promise
 end
 
 -- mapgen build shortcut, only for 1x1x1 sized buildings
@@ -135,10 +130,11 @@ function building_lib.build_mapgen(mapblock_pos, building_name, rotation)
 		}
 	})
 
-	placement.place(placement, mapblock_pos, building_def, replacements, rotation)
+	local promise = placement.place(placement, mapblock_pos, building_def, replacements, rotation)
 	building_lib.fire_event("placed_mapgen", {
 		mapblock_pos = mapblock_pos,
 		building_def = building_def,
 		rotation = rotation
 	})
+	return promise
 end

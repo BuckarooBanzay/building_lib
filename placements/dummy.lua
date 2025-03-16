@@ -5,5 +5,7 @@ building_lib.register_placement("dummy", {
         local size = building_def.size or {x=1,y=1,z=1}
         return mapblock_lib.rotate_size(size, rotation)
     end,
-    place = function(_, _, _, _, _, callback) callback() end
+    place = function()
+        return Promise.resolve()
+    end
 })
