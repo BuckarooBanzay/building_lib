@@ -1,26 +1,31 @@
 
+-- cache-key -> fn
+local cache = {}
+
+local function get_cache_key(building_def, rotation)
+	return building_def.name .. "/" .. (rotation or 0)
+end
+
 -- mapblock_lib schematic catalog
 building_lib.register_placement("mapblock_lib", {
 	place = function(self, mapblock_pos, building_def, replacements, rotation)
 		local catalog
 		local offset = {x=0, y=0, z=0}
-		local cache = false
+		local enable_cache = false
+		local cache_key = get_cache_key(building_def, rotation)
 
 		if type(building_def.catalog) == "table" then
 			catalog = mapblock_lib.get_catalog(building_def.catalog.filename)
 			offset = building_def.catalog.offset or {x=0, y=0, z=0}
-			cache = building_def.catalog.cache
+			enable_cache = building_def.catalog.cache
 		else
 			catalog = mapblock_lib.get_catalog(building_def.catalog)
 		end
 
-		if cache and building_def._cache and building_def._cache[rotation] then
+		if enable_cache and cache[cache_key] then
 			-- rotated building already cached
-			building_def._cache[rotation](mapblock_pos)
+			cache[cache_key](mapblock_pos)
 			return Promise.resolve()
-		else
-			-- initialize cache if not already done
-			building_def._cache = building_def._cache or {}
 		end
 
 		local size = self.get_size(self, mapblock_pos, building_def, 0)
@@ -51,10 +56,10 @@ building_lib.register_placement("mapblock_lib", {
 				})
 
 				-- cache prepared mapblock if enabled
-				if cache then
+				if enable_cache then
 					-- verify size constraints for caching
 					assert(vector.equals(size, {x=1, y=1, z=1}))
-					building_def._cache[rotation] = place_fn
+					cache[cache_key] = place_fn
 				end
 
 				if place_fn then
