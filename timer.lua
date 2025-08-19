@@ -113,6 +113,30 @@ function building_lib.update_timers(pos, interval)
     building_lib.store:set_group_data(rpos, data)
 end
 
+function building_lib.update_timers_in_area(pos1, pos2, interval, visited)
+    local min, max = vector.sort(pos1, pos2)
+    -- round max pos up
+    max = vector.add(max, building_lib.granularity)
+    visited = visited or {}
+
+    for x = min.x, max.x, building_lib.granularity do
+        for y = min.y, max.y, building_lib.granularity do
+            for z = min.z, max.z, building_lib.granularity do
+                local pos = vector.new(x,y,z)
+                -- rounded down position with granularity
+                local rpos = vector.floor(vector.divide(pos, building_lib.granularity))
+                local key = minetest.pos_to_string(rpos)
+
+                -- check if already processed
+                if not visited[key] then
+                    building_lib.update_timers(pos, interval)
+                    visited[key] = true
+                end
+            end
+        end
+    end
+end
+
 local TIMER_INTERVAL = 2
 
 -- iterate over active areas and operate on `DataStorage:get_group_data(pos)`
@@ -126,23 +150,7 @@ local function timer_update_loop()
         local min = vector.subtract(ppos, range)
         local max = vector.add(ppos, range)
 
-        for x = min.x, max.x, range do
-            for y = min.y, max.y, range do
-                for z = min.z, max.z, range do
-                    local pos = vector.new(x,y,z)
-
-                    -- rounded down position with granularity
-                    local rpos = vector.floor(vector.divide(ppos, building_lib.granularity))
-                    local key = minetest.pos_to_string(rpos)
-
-                    -- check if already processed
-                    if not visited[key] then
-                        building_lib.update_timers(pos, TIMER_INTERVAL)
-                        visited[key] = true
-                    end
-                end
-            end
-        end
+        building_lib.update_timers_in_area(min, max, TIMER_INTERVAL, visited)
     end
 
     minetest.after(TIMER_INTERVAL, timer_update_loop)

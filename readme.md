@@ -115,6 +115,7 @@ building_lib.register_building("buildings:my_building_with_timer", {
 	end
 })
 
+-- manual start/stop
 local timer = building_lib.get_building_timer(mapblock_pos)
 timer:set(timeout, elapsed)
 timer:start(10)
@@ -122,6 +123,12 @@ timer:stop()
 timer:get_timeout()
 timer:get_elapsed()
 timer:is_started()
+
+-- update timers in the region around "pos"
+building_lib.update_timers(pos, interval)
+
+-- update timers in area (rounded up or down depending on granularity)
+building_lib.update_timers_in_area(pos1, pos2, interval)
 ```
 
 ## Chat commands

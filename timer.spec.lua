@@ -11,6 +11,7 @@ building_lib.register_building(building_name, {
     on_timer = function(mapblock_pos, elapsed)
         timer_mapblock_pos = mapblock_pos
         timer_elapsed = elapsed
+        return true
     end
 })
 
@@ -37,5 +38,13 @@ mtt.register("building_lib.get_building_timer", function()
         building_lib.update_timers(pos, 5)
         assert(vector.equals(timer_mapblock_pos, building_mapblock_pos))
         assert(timer_elapsed >= 10)
+        timer_elapsed = nil
+
+        building_lib.update_timers_in_area(vector.subtract(pos, 1), vector.add(pos, 1), 5)
+        assert(not timer_elapsed)
+
+        building_lib.update_timers_in_area(vector.subtract(pos, 1), vector.add(pos, 1), 5)
+        -- TODO
+        -- assert(timer_elapsed >= 10)
     end)
 end)
